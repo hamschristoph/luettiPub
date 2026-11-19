@@ -13,14 +13,15 @@ Die App läuft als Claude-Artefakt mit gemeinsamem Live-Speicher. Alle, die eing
 - **„+“ rechts an der Tür:** wiederholt das letzte Getränk dieser Person mit einem Tipp.
 - **Rückgängig:** nach jedem Eintrag ein paar Sekunden lang im Hinweis unten.
 - **Verlauf:** falsche Einträge mit × löschen (mit Rückfrage, ebenfalls rückgängig machbar).
-- **Uhr:** startet automatisch mit dem ersten Getränk. Unter „Uhr & Regeln“ lässt sich die Startzeit korrigieren.
+- **Uhr:** startet automatisch mit dem ersten Getränk. Unter „Uhr & Regeln“ lassen sich Startzeit und **Endzeit** (z. B. Sperrstunde) festlegen. Ohne Endzeit gelten 24 Stunden.
 
 ## Regeln
 
-- Es zählen nur Getränke innerhalb von 24 Stunden ab Start (2 Minuten Kulanz für Handy-Uhren).
+- Es zählen nur Getränke zwischen Start und Ende (2 Minuten Kulanz für Handy-Uhren). Ziel bleibt 10 Liter, das Soll verteilt sich auf die gewählte Dauer.
 - Status pro Person: *Im Soll*, *hinter Soll*, *Geschafft*, dazu das nötige Tempo („1 Pint alle … min“).
 
 ## Dateien
 
 - `dublin-im-hundi.html` – Quelltext der App (so wie er als Artefakt veröffentlicht ist).
 - `index.html` – leitet auf die App weiter.
+- `backup/stand.json` – Sicherung des Stands vom 19.11.2026 (37 Einträge + Startzeit).

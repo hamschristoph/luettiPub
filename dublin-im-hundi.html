@@ -433,7 +433,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
 <div class="app" id="app">
   <header class="top">
     <div>
-      <div class="eyebrow">10 Liter · 24 Stunden · 7 Mann</div>
+      <div class="eyebrow" id="eyebrow">10 Liter · 24 Stunden · 7 Mann</div>
       <h1 class="wordmark">Dublin <em>im</em> Hundi</h1>
     </div>
     <span class="pill" id="pill" role="status"><i aria-hidden="true"></i><span id="pillText">Verbinde …</span></span>
@@ -446,7 +446,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
       <div class="clock-label" id="clockLabel">Verbinde …</div>
       <div class="clock" id="clock" aria-live="off">––:––:––</div>
       <div class="timebar" aria-hidden="true"><i id="timeFill"></i></div>
-      <div class="timeticks" aria-hidden="true"><span>Start</span><span>+6 h</span><span>+12 h</span><span>+18 h</span><span>24 h</span></div>
+      <div class="timeticks" id="timeTicks" aria-hidden="true"><span>Start</span><span>Ende</span></div>
       <p class="clock-sub" id="clockSub">Lade den Stand …</p>
       <button type="button" class="btn" id="startNow" hidden>Uhr jetzt starten</button>
     </div>
@@ -523,10 +523,23 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
         </div>
       </div>
       <div class="set-block">
+        <h3>Endzeit</h3>
+        <p class="muted" id="endInfo">Standard: 24 Stunden nach dem Start.</p>
+        <label for="endInput">Ende festlegen, z. B. Sperrstunde</label>
+        <div class="row">
+          <input class="field" type="datetime-local" id="endInput" step="60">
+          <button type="button" class="btn" id="endSave">Speichern</button>
+        </div>
+        <p class="hint" id="endHint"></p>
+        <div class="row">
+          <button type="button" class="btn ghost" id="endReset">Zurück auf 24 Stunden</button>
+        </div>
+      </div>
+      <div class="set-block">
         <h3>Regeln</h3>
         <ul>
-          <li>Ziel: 10 Liter Bier pro Person in 24 Stunden ab Start.</li>
-          <li>Es zählt nur, was in diesen 24 Stunden eingetragen wurde (2 Minuten Kulanz für falsch gehende Handy-Uhren).</li>
+          <li>Ziel: 10 Liter Bier pro Person zwischen Start und Ende. Ohne festgelegte Endzeit gelten 24 Stunden.</li>
+          <li>Es zählt nur, was zwischen Start und Ende eingetragen wurde (2 Minuten Kulanz für falsch gehende Handy-Uhren).</li>
           <li>Jeder kann für jeden eintragen. Falsche Einträge im Verlauf mit × löschen.</li>
           <li>Pint = 0,568 L, das Irish Imperial Pint. ½ Pint = 0,284 L.</li>
         </ul>
@@ -598,7 +611,8 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
   ];
   const BY_ID = Object.fromEntries(PEOPLE.map(p => [p.id, p]));
   const GOAL_ML = 10000;
-  const DURATION = 24 * 3600 * 1000;
+  const DEFAULT_DUR = 24 * 3600 * 1000;
+  const MIN_DUR = 15 * 60 * 1000;
   const GRACE = 2 * 60 * 1000;
   const PINT = 568;
   const SIZES = [
@@ -613,7 +627,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
   const S = {
     db: null, noDb: false, revoked: false,
     drinks: [], drinksLoaded: false, drinksConfirmed: false, drinksCache: true,
-    startAt: null, configLoaded: false, configConfirmed: false, configCache: true,
+    startAt: null, endAt: null, endDirty: false, configLoaded: false, configConfirmed: false, configCache: true,
     stale: false, canWrite: null, isOwner: false,
     openPerson: null, pendingDelete: null, feedLimit: 8,
     shieldUntil: 0, lastQuick: {}, prevTotals: null, configBusy: false, wiping: false,
@@ -657,16 +671,21 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
   function canWriteNow() { return !!S.db && !S.revoked && S.canWrite !== false && !S.wiping; }
   function isCounted(d) {
     if (S.startAt == null) return true;
-    return d.ts >= S.startAt - GRACE && d.ts <= S.startAt + DURATION + GRACE;
+    return d.ts >= S.startAt - GRACE && d.ts <= endFor(S.startAt) + GRACE;
   }
+  /* End of the event for a given start: the manual end time if it lies after the start, else 24 hours. */
+  function endFor(start) { return (S.endAt != null && S.endAt >= start + MIN_DUR) ? S.endAt : start + DEFAULT_DUR; }
+  const nfH = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 });
+  const hoursTxt = ms => nfH.format(Math.round(ms / 360000) / 10);
   function toLocalInput(ts) { const d = new Date(ts); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
 
   /* ---------- model ---------- */
   function compute(now) {
     const started = S.startAt != null;
     const start = started ? S.startAt : null;
-    const end = started ? S.startAt + DURATION : null;
-    const frac = started ? clamp((now - start) / DURATION, 0, 1) : 0;
+    const end = started ? endFor(start) : null;
+    const dur = started ? end - start : (S.endAt != null && S.endAt > now ? S.endAt - now : DEFAULT_DUR);
+    const frac = started ? clamp((now - start) / dur, 0, 1) : 0;
     const ended = started && now >= end;
     const expected = GOAL_ML * frac;
     const per = {};
@@ -698,12 +717,12 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
       else if (ended) r.pace = r.count + (r.count === 1 ? ' Getränk' : ' Getränke');
       else {
         const remMl = GOAL_ML - r.total;
-        const remH = started ? (end - now) / 3600000 : 24;
+        const remH = (started ? end - now : dur) / 3600000;
         if (remH <= 0.02) r.pace = 'Endspurt!';
         else { const mlph = remMl / remH; r.pace = 'Braucht ' + L2(mlph) + ' L/h · 1 Pint alle ' + everyMin(60 * PINT / mlph); }
       }
     }
-    return { now, started, start, end, frac, ended, expected, per, groupMl, countAll, onTrack };
+    return { now, started, start, end, dur, frac, ended, expected, per, groupMl, countAll, onTrack };
   }
 
   /* ---------- static markup ---------- */
@@ -808,6 +827,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
 
   function renderHero(M) {
     renderClock(M.now);
+    $('#eyebrow').textContent = '10 Liter · ' + (S.configLoaded ? hoursTxt(M.dur) : '24') + ' Stunden · 7 Mann';
     const ready = S.drinksLoaded;
     $('#sGroup').textContent = ready ? L1(M.groupMl) : '–';
     $('#sGroupBar').style.width = ready ? clamp(M.groupMl / (GOAL_ML * PEOPLE.length) * 100, 0, 100).toFixed(1) + '%' : '0%';
@@ -832,20 +852,30 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     }
     if (S.startAt == null) {
       label.textContent = 'Bereit am Zapfhahn';
-      clock.textContent = '24:00:00';
-      sub.textContent = 'Die Uhr startet automatisch mit dem ersten Getränk. Oder jetzt per Knopf.';
+      const presetEnd = S.endAt != null && S.endAt > now;
+      clock.textContent = presetEnd ? hms(S.endAt - now) : '24:00:00';
+      sub.textContent = 'Die Uhr startet automatisch mit dem ersten Getränk. Oder jetzt per Knopf.' + (presetEnd ? ' Ende: ' + dayTime(S.endAt) + '.' : '');
       fill.style.width = '0%';
+      setTicks(null, null);
       lastEndedState = null;
       return;
     }
-    const end = S.startAt + DURATION;
+    const end = endFor(S.startAt);
     const ended = now >= end;
     if (lastEndedState !== null && lastEndedState !== ended) { lastEndedState = ended; renderAll(); return; }
     lastEndedState = ended;
     label.textContent = ended ? 'Zeit um · Endstand' : 'Noch';
     clock.textContent = ended ? '00:00:00' : hms(end - now);
     sub.textContent = 'Start ' + dayTime(S.startAt) + ' · Ende ' + dayTime(end);
-    fill.style.width = (clamp((now - S.startAt) / DURATION, 0, 1) * 100).toFixed(2) + '%';
+    fill.style.width = (clamp((now - S.startAt) / (end - S.startAt), 0, 1) * 100).toFixed(2) + '%';
+    setTicks(S.startAt, end);
+  }
+  let ticksKey = '';
+  function setTicks(start, end) {
+    const html = start == null ? '<span>Start</span><span>Ende</span>'
+      : [0, 1, 2, 3, 4].map(q => '<span>' + hhmm(start + (end - start) * q / 4) + '</span>').join('');
+    if (html === ticksKey) return;
+    ticksKey = html; $('#timeTicks').innerHTML = html;
   }
 
   function renderDoors(M) {
@@ -945,8 +975,8 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     const warn = $('#sheetWarn');
     let w = '';
     if (!canWriteNow()) w = S.noDb ? 'Nicht verbunden: Eintragen ist gesperrt.' : 'Du kannst hier nur zuschauen.';
-    else if (M.ended) w = 'Die 24 Stunden sind vorbei. Neue Getränke zählen nicht mehr für das Ziel.';
-    else if (S.configConfirmed && !M.started) w = 'Mit diesem Getränk startet die 24-Stunden-Uhr.';
+    else if (M.ended) w = 'Die Zeit ist um. Neue Getränke zählen nicht mehr für das Ziel.';
+    else if (S.configConfirmed && !M.started) w = 'Mit diesem Getränk startet die Uhr.';
     warn.hidden = !w; warn.textContent = w;
     const writable = canWriteNow();
     $('#sizes').querySelectorAll('button').forEach(b => { b.disabled = !writable; });
@@ -960,13 +990,24 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     const info = $('#startInfo');
     if (!S.configLoaded) info.textContent = 'Lade …';
     else if (S.startAt == null) info.textContent = 'Noch nicht gestartet. Die Uhr startet automatisch mit dem ersten Getränk.';
-    else info.textContent = 'Gestartet ' + dayTime(S.startAt) + ', Ende ' + dayTime(S.startAt + DURATION) + '.';
+    else info.textContent = 'Gestartet ' + dayTime(S.startAt) + ', Ende ' + dayTime(endFor(S.startAt)) + ' (' + hoursTxt(endFor(S.startAt) - S.startAt) + ' h).';
+    const endInfo = $('#endInfo'), endInput = $('#endInput');
+    const manual = S.endAt != null && (S.startAt == null || S.endAt >= S.startAt + MIN_DUR);
+    if (!S.configLoaded) endInfo.textContent = 'Lade …';
+    else if (manual) endInfo.textContent = 'Manuell festgelegt: Ende ' + dayTime(S.endAt) + (S.startAt != null ? ' (' + hoursTxt(S.endAt - S.startAt) + ' h nach Start).' : '.');
+    else if (S.endAt != null) endInfo.textContent = 'Die gespeicherte Endzeit liegt vor dem Start. Es gelten 24 Stunden: Ende ' + dayTime(endFor(S.startAt)) + '.';
+    else endInfo.textContent = 'Standard: 24 Stunden nach dem Start' + (S.startAt != null ? ', also ' + dayTime(endFor(S.startAt)) + '.' : '.');
+    if (!S.endDirty && document.activeElement !== endInput) endInput.value = S.startAt != null ? toLocalInput(endFor(S.startAt)) : (S.endAt != null ? toLocalInput(S.endAt) : '');
     const input = $('#startInput');
     if (!S.startDirty && document.activeElement !== input) input.value = S.startAt != null ? toLocalInput(S.startAt) : '';
     const w = canWriteNow() && S.configLoaded;
     ['#startSave', '#startNow2'].forEach(s => { $(s).disabled = !w || S.configBusy; });
     $('#startReset').disabled = !w || S.configBusy || S.startAt == null;
     input.disabled = !w;
+    $('#endSave').disabled = !w || S.configBusy;
+    $('#endReset').disabled = !w || S.configBusy || S.endAt == null;
+    endInput.disabled = !w;
+    if (S.endDirty) updateEndHint();
     $('#ownerBlock').hidden = !(S.isOwner && S.db);
     $('#wipeBtn').disabled = !canWriteNow() || !S.drinks.length;
     if (S.startDirty) updateStartHint();
@@ -988,7 +1029,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     const maxTot = Math.max(GOAL_ML, ...PEOPLE.map(p => M.per[p.id].total));
     const yMax = Math.ceil(maxTot / 2000) * 2000;
     const tEnd = Math.min(M.now, M.end);
-    const X = t => m.l + clamp((t - M.start) / DURATION, 0, 1) * iw;
+    const X = t => m.l + clamp((t - M.start) / M.dur, 0, 1) * iw;
     const Y = ml => m.t + ih - (ml / yMax) * ih;
     let g = '';
     for (let v = 0; v <= yMax; v += 2000) {
@@ -996,10 +1037,11 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
       g += '<line class="grid' + (goal ? ' goal' : '') + '" x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y + '" y2="' + y + '"/>';
       g += '<text class="ylab' + (goal ? ' goal' : '') + '" x="' + (m.l - 8) + '" y="' + y + '" dy="0.32em" text-anchor="end">' + (v / 1000) + (goal || v === 0 ? ' L' : '') + '</text>';
     }
-    for (let h = 0; h <= 24; h += 6) {
-      const x = X(M.start + h * 3600000).toFixed(1);
+    for (let q = 0; q <= 4; q++) {
+      const h = q * 6, off = M.dur * q / 4;
+      const x = X(M.start + off).toFixed(1);
       g += '<line class="xtick" x1="' + x + '" x2="' + x + '" y1="' + (m.t + ih) + '" y2="' + (m.t + ih + 4) + '"/>';
-      g += '<text class="xlab" x="' + x + '" y="' + (H - 6) + '" text-anchor="' + (h === 0 ? 'start' : h === 24 ? 'end' : 'middle') + '">' + (h === 0 ? hhmm(M.start) : h === 24 ? hhmm(M.end) : '+' + h + ' h') + '</text>';
+      g += '<text class="xlab" x="' + x + '" y="' + (H - 6) + '" text-anchor="' + (q === 0 ? 'start' : q === 4 ? 'end' : 'middle') + '">' + (q === 0 ? hhmm(M.start) : q === 4 ? hhmm(M.end) : '+' + hoursTxt(off) + ' h') + '</text>';
     }
     g += '<line class="target" x1="' + X(M.start).toFixed(1) + '" y1="' + Y(0).toFixed(1) + '" x2="' + X(M.end).toFixed(1) + '" y2="' + Y(GOAL_ML).toFixed(1) + '"/>';
     if (!M.ended) {
@@ -1030,7 +1072,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     const k = G.W / rect.width;
     const sx = (e.clientX - rect.left) * k;
     if (sx < G.m.l - 6 || sx > G.W - G.m.r + 6) { hideHover(); return; }
-    let t = G.M.start + (clamp(sx, G.m.l, G.m.l + G.iw) - G.m.l) / G.iw * DURATION;
+    let t = G.M.start + (clamp(sx, G.m.l, G.m.l + G.iw) - G.m.l) / G.iw * G.M.dur;
     t = Math.min(t, G.tEnd);
     const vals = PEOPLE.map(p => {
       let v = 0;
@@ -1041,7 +1083,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     layer.innerHTML = '<line class="cross" x1="' + x.toFixed(1) + '" x2="' + x.toFixed(1) + '" y1="' + G.m.t + '" y2="' + (G.m.t + G.ih) + '"/>' +
       vals.map(o => '<circle class="hdot" cx="' + x.toFixed(1) + '" cy="' + G.Y(o.v).toFixed(1) + '" r="4.5" fill="' + o.p.color + '"/>').join('');
     layer.setAttribute('visibility', 'visible');
-    const soll = GOAL_ML * clamp((t - G.M.start) / DURATION, 0, 1);
+    const soll = GOAL_ML * clamp((t - G.M.start) / G.M.dur, 0, 1);
     tip.innerHTML = '<div class="tip-h">' + dayTime(t) + '<span>+' + dur(t - G.M.start) + '</span></div>' +
       vals.map(o => '<div class="tip-r"><i style="background:' + o.p.color + '"></i><span>' + esc(o.p.name) + '</span><b>' + L2(o.v) + ' L</b></div>').join('') +
       '<div class="tip-r soll"><i></i><span>Soll</span><b>' + L2(soll) + ' L</b></div>';
@@ -1113,7 +1155,8 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     if (S.startAt == null && S.configConfirmed && !S.configBusy) {
       autoStarted = true;
       S.configBusy = true;
-      safeWrite(() => S.db.doc('config/event').set({ startAt: ts })).finally(() => { S.configBusy = false; renderAll(); });
+      const cfg = { startAt: ts }; if (S.endAt != null) cfg.endAt = S.endAt;
+      safeWrite(() => S.db.doc('config/event').set(cfg)).finally(() => { S.configBusy = false; renderAll(); });
     }
     const ref = S.db.collection('drinks').doc();
     const setP = safeWrite(() => ref.set({ p: pid, ml, ts }));
@@ -1140,19 +1183,21 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     }
   }
 
-  async function setStart(ts) {
+  /* Start and end live together in config/event; every write keeps the other value. */
+  async function writeConfig(startAt, endAt) {
     if (!canWriteNow() || S.configBusy) return false;
     S.configBusy = true; renderAll();
-    const ok = await safeWrite(() => S.db.doc('config/event').set({ startAt: ts }));
+    const data = {};
+    if (startAt != null) data.startAt = startAt;
+    if (endAt != null) data.endAt = endAt;
+    const ref = S.db.doc('config/event');
+    const ok = await safeWrite(() => Object.keys(data).length ? ref.set(data) : ref.delete());
     S.configBusy = false; renderAll();
     return ok;
   }
+  function setStart(ts) { return writeConfig(ts, S.endAt); }
   async function resetStart() {
-    if (!canWriteNow() || S.configBusy) return;
-    S.configBusy = true; renderAll();
-    const ok = await safeWrite(() => S.db.doc('config/event').delete());
-    S.configBusy = false; renderAll();
-    if (ok) toast('Uhr zurückgesetzt.');
+    if (await writeConfig(null, S.endAt)) toast('Uhr zurückgesetzt.');
   }
   async function wipeAll() {
     if (!S.isOwner || !canWriteNow()) return;
@@ -1222,10 +1267,30 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     if (!v) { hint.textContent = ''; hint.className = 'hint'; return; }
     const ts = new Date(v).getTime();
     if (!isFinite(ts)) { hint.textContent = 'Ungültige Zeit.'; hint.className = 'hint err'; return; }
-    const out = S.drinks.filter(d => d.ts < ts - GRACE || d.ts > ts + DURATION + GRACE).length;
+    const end = endFor(ts);
+    const out = S.drinks.filter(d => d.ts < ts - GRACE || d.ts > end + GRACE).length;
     hint.className = 'hint';
-    hint.textContent = 'Ende wäre ' + dayTime(ts + DURATION) + '. ' +
-      (out ? out + (out === 1 ? ' Getränk läge' : ' Getränke lägen') + ' außerhalb der 24 Stunden und zählten nicht.' : 'Alle bisherigen Getränke liegen im Zeitfenster.');
+    hint.textContent = 'Ende wäre ' + dayTime(end) + ' (' + hoursTxt(end - ts) + ' h). ' +
+      (out ? out + (out === 1 ? ' Getränk läge' : ' Getränke lägen') + ' außerhalb des Zeitfensters und zählten nicht.' : 'Alle bisherigen Getränke liegen im Zeitfenster.');
+  }
+  function readEnd() {
+    const v = $('#endInput').value;
+    if (!v) return { err: 'Bitte Datum und Uhrzeit wählen.' };
+    const ts = new Date(v).getTime();
+    if (!isFinite(ts)) return { err: 'Ungültige Zeit.' };
+    if (S.startAt != null && ts < S.startAt + MIN_DUR) return { err: 'Das Ende muss mindestens 15 Minuten nach dem Start liegen (' + dayTime(S.startAt) + ').' };
+    if (S.startAt == null && ts <= Date.now() + MIN_DUR) return { err: 'Das Ende muss in der Zukunft liegen.' };
+    return { ts };
+  }
+  function updateEndHint() {
+    const hint = $('#endHint');
+    const r = readEnd();
+    if (r.err) { hint.textContent = $('#endInput').value ? r.err : ''; hint.className = 'hint err'; return; }
+    hint.className = 'hint';
+    if (S.startAt == null) { hint.textContent = 'Ende ' + dayTime(r.ts) + '. Die Uhr läuft ab dem Start bis dahin.'; return; }
+    const out = S.drinks.filter(d => d.ts >= S.startAt - GRACE && d.ts > r.ts + GRACE).length;
+    hint.textContent = 'Dauer ' + hoursTxt(r.ts - S.startAt) + ' h. ' +
+      (out ? out + (out === 1 ? ' Getränk läge' : ' Getränke lägen') + ' nach dem Ende und zählten nicht.' : 'Alle bisherigen Getränke zählen weiter.');
   }
 
   /* ---------- events ---------- */
@@ -1280,6 +1345,15 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
   $('#startNow').addEventListener('click', async () => { if (await setStart(Date.now())) toast('Uhr läuft. Sláinte!'); });
   $('#startNow2').addEventListener('click', async () => { S.startDirty = false; if (await setStart(Date.now())) toast('Uhr läuft. Sláinte!'); });
   $('#startInput').addEventListener('input', () => { S.startDirty = true; updateStartHint(); });
+  $('#endInput').addEventListener('input', () => { S.endDirty = true; updateEndHint(); });
+  $('#endSave').addEventListener('click', async () => {
+    const r = readEnd();
+    if (r.err) { const h = $('#endHint'); h.textContent = r.err; h.className = 'hint err'; return; }
+    if (await writeConfig(S.startAt, r.ts)) { S.endDirty = false; $('#endHint').textContent = ''; toast('Endzeit gespeichert: ' + dayTime(r.ts)); renderAll(); }
+  });
+  $('#endReset').addEventListener('click', async () => {
+    if (await writeConfig(S.startAt, null)) { S.endDirty = false; $('#endHint').textContent = ''; toast('Zurück auf 24 Stunden.'); renderAll(); }
+  });
   $('#startSave').addEventListener('click', async () => {
     const v = $('#startInput').value;
     const ts = v ? new Date(v).getTime() : NaN;
@@ -1355,7 +1429,10 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     S.db.doc('config/event').onSnapshot(snap => {
       let start = null;
       if (snap.exists) { const v = snap.data(); if (v && typeof v.startAt === 'number' && isFinite(v.startAt) && v.startAt > 1e12 && v.startAt < 1e13) start = v.startAt; }
+      let endAt = null;
+      if (snap.exists) { const v = snap.data(); if (v && typeof v.endAt === 'number' && isFinite(v.endAt) && v.endAt > 1e12 && v.endAt < 1e13) endAt = v.endAt; }
       S.startAt = start;
+      S.endAt = endAt;
       S.configLoaded = true;
       S.configCache = !!snap.metadata.fromCache;
       if (!snap.metadata.fromCache) { S.configConfirmed = true; clearStaleIfReady(); }
