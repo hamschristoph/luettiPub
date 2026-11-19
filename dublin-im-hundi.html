@@ -391,6 +391,10 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
 .size:hover:not(:disabled) { border-color: var(--brass); }
 .size:active:not(:disabled) { transform: scale(0.97); background: rgba(214, 176, 92, 0.16); }
 .size.pint { border-color: rgba(214, 176, 92, 0.6); background: rgba(214, 176, 92, 0.1); }
+.size.whiskey { grid-column: 1 / -1; min-height: 56px; flex-direction: row; gap: 10px; border-color: rgba(214, 140, 60, 0.6); background: linear-gradient(90deg, rgba(196, 120, 40, 0.18), rgba(214, 176, 92, 0.08)); }
+.size.whiskey b { color: #f0b860; }
+.stars { color: var(--brass); font-size: 14px; letter-spacing: 0.06em; font-weight: 700; white-space: nowrap; }
+.stars:empty { display: none; }
 .size:disabled { opacity: 0.45; }
 .custom { display: flex; flex-direction: column; gap: 6px; }
 .sheet h4 { margin: 0; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--foam-mute); }
@@ -494,7 +498,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
   <section aria-labelledby="doorsTitle">
     <div class="sec-head">
       <h2 id="doorsTitle">Rangliste</h2>
-      <p>Wer am meisten hat, steht vorne · Tür antippen zum Eintragen · <b>+</b> wiederholt das letzte Getränk</p>
+      <p>Wer am meisten hat, steht vorne · Tür antippen zum Eintragen · <b>+</b> wiederholt das letzte Bier · <span class="stars">★</span> = Whiskey</p>
     </div>
     <div class="doors" id="doors"></div>
   </section>
@@ -705,6 +709,11 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     const t = Math.round(min); return Math.floor(t / 60) + ' h ' + pad(t % 60) + ' min';
   }
   function sizeName(ml) { const s = SIZES.find(x => x.ml === ml); return s ? s.name : trimL(ml) + ' L'; }
+  const WHISKEY_ML = 40;
+  const isWhiskey = d => d.k === 'whiskey';
+  const starsTxt = n => !n ? '' : n <= 5 ? '★'.repeat(n) : '★×' + n;
+  function whiskeyCounts() { const c = {}; for (const d of S.drinks) if (isWhiskey(d)) c[d.p] = (c[d.p] || 0) + 1; return c; }
+  function entryLine(d) { return isWhiskey(d) ? 'Whiskey ★ · 4 cl' : sizeLine(d.ml); }
   function sizeLine(ml) { const s = SIZES.find(x => x.ml === ml); return s ? s.name + ' · ' + trimL(ml) + ' L' : trimL(ml) + ' L'; }
   function quickName(ml) { return ml === PINT ? 'Pint' : ml === 284 ? '½ Pint' : trimL(ml) + ' L'; }
   function canWriteNow() { return !!S.db && !S.revoked && S.canWrite !== false && !S.wiping; }
@@ -732,6 +741,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     let groupMl = 0, countAll = 0;
     for (const d of S.drinks) {
       const r = per[d.p]; if (!r) continue;
+      if (isWhiskey(d)) { r.stars = (r.stars || 0) + 1; continue; }
       r.last = d.ts; r.lastMl = d.ml;
       if (!isCounted(d)) continue;
       r.total += d.ml; r.count += 1; groupMl += d.ml; countAll += 1;
@@ -794,7 +804,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
         '<button type="button" class="door-main" data-open="' + p.id + '" aria-label="' + esc(p.name) + ': Getränk eintragen">' +
           '<span class="arch"><span class="fan" aria-hidden="true"></span>' + glassSVG(p.id) + '</span>' +
           '<span class="info">' +
-            '<span class="name">' + esc(p.name) + '<span class="rank" data-k="rank" hidden></span></span>' +
+            '<span class="name">' + esc(p.name) + '<span class="stars" data-k="stars" title="Whiskey"></span><span class="rank" data-k="rank" hidden></span></span>' +
             '<span class="liters"><b data-k="liters">–</b> / 10 L</span>' +
             '<span class="chip" data-k="chip"><i aria-hidden="true" data-k="chipIcon">●</i><span data-k="chipText">Lade …</span></span>' +
             '<span class="pace" data-k="pace"></span>' +
@@ -813,7 +823,8 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     $('#legend').innerHTML = PEOPLE.map(p => '<span><i style="background:' + p.color + '"></i>' + esc(p.name) + '</span>').join('') +
       '<span class="soll"><i></i>Soll</span>';
     $('#sizes').innerHTML = SIZES.map(s =>
-      '<button type="button" class="size' + (s.ml === PINT ? ' pint' : '') + '" data-ml="' + s.ml + '"><b>' + esc(s.name) + '</b><span>' + esc(s.sub) + '</span></button>').join('');
+      '<button type="button" class="size' + (s.ml === PINT ? ' pint' : '') + '" data-ml="' + s.ml + '"><b>' + esc(s.name) + '</b><span>' + esc(s.sub) + '</span></button>').join('') +
+      '<button type="button" class="size whiskey" data-whiskey="1"><b>Whiskey ★</b><span>4 cl · gibt einen Stern, zählt nicht als Bier</span></button>';
     const cheer = $('#cheer');
     let bubbles = '';
     for (let i = 0; i < 26; i++) {
@@ -926,6 +937,8 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     for (const p of PEOPLE) {
       const r = M.per[p.id], el = doorRefs[p.id];
       el.liters.textContent = ready ? L2(r.total) : '–';
+      el.stars.textContent = ready ? starsTxt(r.stars) : '';
+      el.stars.title = r.stars ? r.stars + (r.stars === 1 ? ' Whiskey' : ' Whiskeys') : '';
       setGlass(el.liquid, el.head, ready ? r.total : 0);
       if (ready && r.rank) { el.rank.hidden = false; el.rank.textContent = '#' + r.rank; el.rank.title = 'Platz ' + r.rank; el.rank.classList.toggle('first', r.rank === 1); }
       else el.rank.hidden = true;
@@ -981,17 +994,17 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
 
   function entryHTML(d, showName, writable) {
     const p = BY_ID[d.p];
-    const counted = isCounted(d);
+    const counted = isWhiskey(d) || isCounted(d);
     const id = esc(d.id);
     let tail;
     if (S.pendingDelete === d.id) {
       tail = '<span class="e-confirm"><span>Löschen?</span><button type="button" class="mini danger" data-del-yes="' + id + '">Ja</button><button type="button" class="mini" data-del-no="1">Nein</button></span>';
     } else if (writable) {
-      tail = '<button type="button" class="e-del" data-del="' + id + '" aria-label="Eintrag löschen: ' + esc(p.name) + ', ' + esc(sizeLine(d.ml)) + ', ' + hhmm(d.ts) + '">×</button>';
+      tail = '<button type="button" class="e-del" data-del="' + id + '" aria-label="Eintrag löschen: ' + esc(p.name) + ', ' + esc(entryLine(d)) + ', ' + hhmm(d.ts) + '">×</button>';
     } else tail = '<span></span>';
     return '<li class="entry' + (counted ? '' : ' off') + '">' +
       '<span class="dot" style="background:' + p.color + '"></span>' +
-      '<span class="e-main">' + (showName ? '<b>' + esc(p.name) + '</b>' : '') + esc(sizeLine(d.ml)) + (counted ? '' : '<em class="tag">andere Runde</em>') + '</span>' +
+      '<span class="e-main">' + (showName ? '<b>' + esc(p.name) + '</b>' : '') + esc(entryLine(d)) + (counted ? '' : '<em class="tag">andere Runde</em>') + '</span>' +
       '<time class="e-time" datetime="' + new Date(d.ts).toISOString() + '">' + dayTime(d.ts) + '</time>' + tail + '</li>';
   }
 
@@ -1018,6 +1031,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     for (const d of S.drinks) {
       const k = tourDay(d.ts); const r = byId[d.p];
       if (k < 0 || !r) continue;
+      if (isWhiskey(d)) { r.stars = (r.stars || 0) + 1; continue; }
       r.days[k] += d.ml; r.total += d.ml; group[k] += d.ml;
     }
     rows.sort((a, b) => b.total - a.total || a.i - b.i);
@@ -1028,7 +1042,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     let html = '<thead><tr><th>Name</th><th>Gesamt<small>Liter</small></th>' + TOUR_LABELS.map((l, k) => '<th class="' + (k === today ? 'today' : '') + '">' + l + '<small>' + dates[k] + '.11.</small></th>').join('') + '</tr></thead><tbody>';
     rows.forEach(r => {
       const rank = r.total > 0 ? 1 + rows.filter(o => o.total > r.total).length : null;
-      html += '<tr><td><span class="who"><span class="rk">' + (rank ? rank + '.' : '') + '</span><i style="background:' + r.p.color + '"></i>' + esc(r.p.name) + '</span></td><td class="sum">' + L2(r.total) + '</td>' +
+      html += '<tr><td><span class="who"><span class="rk">' + (rank ? rank + '.' : '') + '</span><i style="background:' + r.p.color + '"></i>' + esc(r.p.name) + ' <span class="stars">' + starsTxt(r.stars) + '</span></span></td><td class="sum">' + L2(r.total) + '</td>' +
         r.days.map((ml, k) => cell(ml, k, future(k))).join('') + '</tr>';
     });
     const all = group.reduce((a, b) => a + b, 0);
@@ -1039,8 +1053,8 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
   function renderSheet(M) {
     if (!S.openPerson) return;
     const p = BY_ID[S.openPerson], r = M.per[p.id];
-    $('#sheetTitle').textContent = p.name;
-    const tourMl = S.drinks.reduce((a, d) => a + (d.p === p.id && tourDay(d.ts) >= 0 ? d.ml : 0), 0);
+    $('#sheetTitle').textContent = p.name + (r.stars ? ' ' + starsTxt(r.stars) : '');
+    const tourMl = S.drinks.reduce((a, d) => a + (d.p === p.id && !isWhiskey(d) && tourDay(d.ts) >= 0 ? d.ml : 0), 0);
     $('#sheetSub').textContent = S.drinksLoaded ? L2(r.total) + ' L von 10 L · ' + (S.configLoaded ? r.chip : '') + ' · Do–So ' + L2(tourMl) + ' L' : '';
     setGlass($('#sheetArch .liquid'), $('#sheetArch .head'), S.drinksLoaded ? r.total : 0);
     const warn = $('#sheetWarn');
@@ -1216,6 +1230,17 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     }
   }
 
+  function addWhiskey(pid) {
+    const p = BY_ID[pid];
+    if (!p || !canWriteNow()) return;
+    const ref = S.db.collection('drinks').doc();
+    const setP = safeWrite(() => ref.set({ p: pid, ml: WHISKEY_ML, ts: Date.now(), k: 'whiskey' }));
+    const el = doorRefs[pid] && doorRefs[pid].root;
+    if (el) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+    toast(p.name + ': Whiskey ★', {
+      action: { label: 'Rückgängig', fn: async () => { const ok = await setP; if (ok && await safeWrite(() => ref.delete())) toast('Rückgängig gemacht.'); } },
+    });
+  }
   function addDrink(pid, ml) {
     const p = BY_ID[pid];
     if (!p || !canWriteNow()) return;
@@ -1248,8 +1273,8 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     const ok = await safeWrite(() => ref.delete());
     if (ok) {
       const p = BY_ID[d.p];
-      toast(p.name + ': ' + sizeLine(d.ml) + ' gelöscht', {
-        action: { label: 'Rückgängig', fn: async () => { if (await safeWrite(() => ref.set({ p: d.p, ml: d.ml, ts: d.ts }))) toast('Wiederhergestellt.'); } },
+      toast(p.name + ': ' + entryLine(d) + ' gelöscht', {
+        action: { label: 'Rückgängig', fn: async () => { if (await safeWrite(() => ref.set(isWhiskey(d) ? { p: d.p, ml: d.ml, ts: d.ts, k: 'whiskey' } : { p: d.p, ml: d.ml, ts: d.ts }))) toast('Wiederhergestellt.'); } },
       });
     }
   }
@@ -1339,7 +1364,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     const ts = new Date(v).getTime();
     if (!isFinite(ts)) { hint.textContent = 'Ungültige Zeit.'; hint.className = 'hint err'; return; }
     const end = endFor(ts);
-    const out = S.drinks.filter(d => d.ts < ts - GRACE || d.ts > end + GRACE).length;
+    const out = S.drinks.filter(d => !isWhiskey(d) && (d.ts < ts - GRACE || d.ts > end + GRACE)).length;
     hint.className = 'hint';
     hint.textContent = 'Ende wäre ' + dayTime(end) + ' (' + hoursTxt(end - ts) + ' h). ' +
       (out ? out + (out === 1 ? ' Getränk läge' : ' Getränke lägen') + ' außerhalb des Zeitfensters und zählten nicht.' : 'Alle bisherigen Getränke liegen im Zeitfenster.');
@@ -1359,7 +1384,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     if (r.err) { hint.textContent = $('#endInput').value ? r.err : ''; hint.className = 'hint err'; return; }
     hint.className = 'hint';
     if (S.startAt == null) { hint.textContent = 'Ende ' + dayTime(r.ts) + '. Die Uhr läuft ab dem Start bis dahin.'; return; }
-    const out = S.drinks.filter(d => d.ts >= S.startAt - GRACE && d.ts > r.ts + GRACE).length;
+    const out = S.drinks.filter(d => !isWhiskey(d) && d.ts >= S.startAt - GRACE && d.ts > r.ts + GRACE).length;
     hint.textContent = 'Dauer ' + hoursTxt(r.ts - S.startAt) + ' h. ' +
       (out ? out + (out === 1 ? ' Getränk läge' : ' Getränke lägen') + ' nach dem Ende und zählten nicht.' : 'Alle bisherigen Getränke zählen weiter.');
   }
@@ -1379,6 +1404,11 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
       if (Date.now() - (S.lastQuick[pid] || 0) < 1500) return;
       S.lastQuick[pid] = Date.now();
       addDrink(pid, Number(t.dataset.ml) || PINT); return;
+    }
+    if (t.dataset.whiskey && S.openPerson) {
+      addWhiskey(S.openPerson);
+      S.shieldUntil = Date.now() + 500;
+      closeSheet(); return;
     }
     if (t.dataset.ml && S.openPerson) {
       const pid = S.openPerson;
@@ -1479,7 +1509,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
     S.prevTotals = totals;
   }
   function validDrink(v) {
-    return v && typeof v.p === 'string' && BY_ID[v.p] && typeof v.ml === 'number' && isFinite(v.ml) && v.ml >= 10 && v.ml <= 5000 && typeof v.ts === 'number' && isFinite(v.ts) && v.ts > 1e12 && v.ts < 1e13;
+    return v && typeof v.p === 'string' && BY_ID[v.p] && typeof v.ml === 'number' && isFinite(v.ml) && v.ml >= 10 && v.ml <= 5000 && typeof v.ts === 'number' && isFinite(v.ts) && v.ts > 1e12 && v.ts < 1e13 && (v.k === undefined || v.k === 'whiskey');
   }
 
   let drinkRetries = 0, configRetries = 0;
@@ -1489,7 +1519,7 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
       for (const doc of snap.docs) {
         let v; try { v = doc.data(); } catch { continue; }
         if (!validDrink(v)) continue;
-        arr.push({ id: doc.id, p: v.p, ml: Math.round(v.ml), ts: v.ts });
+        arr.push({ id: doc.id, p: v.p, ml: Math.round(v.ml), ts: v.ts, k: v.k === 'whiskey' ? 'whiskey' : undefined });
       }
       arr.sort((a, b) => a.ts - b.ts || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
       S.drinks = arr;

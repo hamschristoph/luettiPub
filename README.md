@@ -12,6 +12,7 @@ Die App läuft als Claude-Artefakt mit gemeinsamem Live-Speicher. Alle, die eing
 - **Neue Runde:** Wenn eine Runde vorbei ist, startet „Neue Runde starten“ (zweimal tippen) die nächste. Alte Einträge bleiben erhalten.
 - **Rangliste:** Die Türen sind nach Litern sortiert, wer am meisten hat, steht oben.
 - **Tür antippen:** Getränk für diese Person eintragen (Pint 0,568 · Halbe 0,5 · Dose 0,44 · Flasche 0,33 · ½ Pint 0,284 · Maß 1,0 oder eigene Menge).
+- **Whiskey:** im Eintragefenster unten „Whiskey ★“. Jeder Whiskey gibt einen Stern neben dem Namen und zählt nicht als Bier.
 - **„+“ rechts an der Tür:** wiederholt das letzte Getränk dieser Person mit einem Tipp.
 - **Rückgängig:** nach jedem Eintrag ein paar Sekunden lang im Hinweis unten.
 - **Verlauf:** falsche Einträge mit × löschen (mit Rückfrage, ebenfalls rückgängig machbar).
