@@ -473,8 +473,8 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
 
   <section aria-labelledby="doorsTitle">
     <div class="sec-head">
-      <h2 id="doorsTitle">Stand</h2>
-      <p>Tür antippen zum Eintragen · <b>+</b> wiederholt das letzte Getränk</p>
+      <h2 id="doorsTitle">Rangliste</h2>
+      <p>Wer am meisten hat, steht vorne · Tür antippen zum Eintragen · <b>+</b> wiederholt das letzte Getränk</p>
     </div>
     <div class="doors" id="doors"></div>
   </section>
@@ -874,6 +874,35 @@ label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transfor
       el.quickBtn.dataset.ml = String(qml);
       el.quickBtn.setAttribute('aria-label', p.name + ': ' + sizeName(qml) + ' (' + trimL(qml) + ' L) eintragen');
       el.quickBtn.disabled = !canWriteNow() || !ready;
+    }
+    reorderDoors(M);
+  }
+
+  /* Highest total first; ties keep the roster order. Cards glide to their new place,
+     and taps are ignored briefly after a reshuffle so nobody hits the wrong person. */
+  let doorOrder = PEOPLE.map(p => p.id).join(',');
+  const reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reorderDoors(M) {
+    const ids = PEOPLE.map((p, i) => ({ id: p.id, i, t: S.drinksLoaded ? M.per[p.id].total : 0 }))
+      .sort((a, b) => b.t - a.t || a.i - b.i).map(x => x.id);
+    const key = ids.join(',');
+    if (key === doorOrder) return;
+    doorOrder = key;
+    const wrap = $('#doors');
+    const first = {};
+    for (const id of ids) first[id] = doorRefs[id].root.getBoundingClientRect();
+    const active = document.activeElement;
+    for (const id of ids) wrap.appendChild(doorRefs[id].root);
+    if (active && active !== document.activeElement && wrap.contains(active)) { try { active.focus({ preventScroll: true }); } catch {} }
+    S.shieldUntil = Math.max(S.shieldUntil, Date.now() + 700);
+    if (reduceMotion && reduceMotion.matches) return;
+    for (const id of ids) {
+      const el = doorRefs[id].root;
+      if (typeof el.animate !== 'function') continue;
+      const last = el.getBoundingClientRect();
+      const dx = first[id].left - last.left, dy = first[id].top - last.top;
+      if (!dx && !dy) continue;
+      el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px)' }, { transform: 'none' }], { duration: 480, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' });
     }
   }
 
