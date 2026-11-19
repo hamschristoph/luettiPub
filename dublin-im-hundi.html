@@ -1,0 +1,1379 @@
+<title>Dublin im Hundi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: a Dublin pub at night. Brass-framed clock up top, seven Georgian doors (one per person, each holding a filling pint glass), then the race chart and the bar tab. Dark by design. */
+:root {
+  --stout: #14100d;        /* page: stout black with a warm cast */
+  --panel: #1d1814;        /* cards */
+  --panel-2: #272019;      /* raised controls */
+  --line: rgba(243, 233, 210, 0.11);
+  --line-strong: rgba(243, 233, 210, 0.22);
+  --foam: #f3e9d2;         /* primary text, the cream head */
+  --foam-dim: #b8ad97;     /* secondary text */
+  --foam-mute: #8a806e;    /* captions */
+  --brass: #d6b05c;        /* accent: gold leaf on a pub fascia */
+  --brass-deep: #a4823a;
+  --ink-on-foam: #1b140f;
+  --good: #5cc08b;
+  --warn: #e9a640;
+  --bad: #ef6a55;
+  --font-display: "DM Serif Display", Georgia, "Times New Roman", serif;
+  --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --radius: 18px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--stout); }
+body {
+  background:
+    radial-gradient(1100px 520px at 0% -8%, rgba(46, 122, 82, 0.20), transparent 62%),
+    radial-gradient(900px 480px at 105% 0%, rgba(214, 176, 92, 0.10), transparent 60%),
+    var(--stout);
+  color: var(--foam);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100%;
+}
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+
+.app {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ---------- Header ---------- */
+.top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--foam-dim);
+}
+.wordmark {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 9.5vw, 4.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  color: var(--brass);
+  background: linear-gradient(176deg, #f6e2a6 0%, #d6b05c 42%, #a4823a 70%, #e8c97c 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.55));
+}
+.wordmark em { font-style: italic; }
+.pill {
+  flex: none;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 11px; border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: rgba(0, 0, 0, 0.25);
+  font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--foam-dim); white-space: nowrap; margin-top: 4px;
+}
+.pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); }
+.pill.live i { background: var(--good); box-shadow: 0 0 0 0 rgba(92, 192, 139, 0.6); animation: ping 2.2s infinite; }
+.pill.off i { background: var(--bad); }
+.pill.ro i { background: var(--foam-dim); }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(92, 192, 139, 0.55); } 70% { box-shadow: 0 0 0 9px rgba(92, 192, 139, 0); } 100% { box-shadow: 0 0 0 0 rgba(92, 192, 139, 0); } }
+
+.notice {
+  border-radius: 14px; padding: 12px 14px; font-size: 14px;
+  border: 1px solid var(--line-strong); background: var(--panel);
+}
+.notice.bad { border-color: rgba(239, 106, 85, 0.55); background: rgba(239, 106, 85, 0.09); }
+.notice.warn { border-color: rgba(233, 166, 64, 0.55); background: rgba(233, 166, 64, 0.08); }
+.notice.info { border-color: var(--line-strong); }
+.notice a { color: var(--brass); word-break: break-all; }
+
+/* ---------- Hero: the brass-framed clock ---------- */
+.hero {
+  position: relative;
+  border-radius: 22px;
+  padding: 20px;
+  background: linear-gradient(180deg, rgba(39, 32, 25, 0.9), rgba(25, 20, 16, 0.9));
+  border: 1px solid rgba(214, 176, 92, 0.45);
+  box-shadow: inset 0 0 0 4px var(--stout), inset 0 0 0 5px rgba(214, 176, 92, 0.22), 0 20px 50px rgba(0, 0, 0, 0.35);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.clock-label { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass); }
+.clock {
+  font-family: var(--font-body); font-weight: 800;
+  font-size: clamp(2.8rem, 13vw, 5rem);
+  line-height: 1; letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin: 6px 0 12px;
+}
+.timebar { position: relative; height: 10px; border-radius: 999px; background: rgba(243, 233, 210, 0.08); overflow: hidden; }
+.timebar i {
+  position: absolute; inset: 0 auto 0 0; width: 0%;
+  background: linear-gradient(90deg, var(--brass-deep), var(--brass));
+  border-radius: inherit; transition: width 0.8s ease;
+}
+.timeticks { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--foam-mute); font-variant-numeric: tabular-nums; }
+.clock-sub { margin: 10px 0 0; color: var(--foam-dim); font-size: 14px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 10px 18px; border-radius: 12px;
+  border: 1px solid transparent;
+  background: var(--brass); color: var(--ink-on-foam);
+  font-weight: 800; letter-spacing: 0.01em;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+.btn:hover:not(:disabled) { filter: brightness(1.07); }
+.btn:active:not(:disabled) { transform: scale(0.98); }
+.btn:disabled { opacity: 0.45; }
+.btn.ghost { background: transparent; color: var(--foam); border-color: var(--line-strong); }
+.btn.danger { background: transparent; color: var(--bad); border-color: rgba(239, 106, 85, 0.55); }
+.btn.danger.solid { background: var(--bad); color: #1b0e0b; border-color: transparent; }
+.hero .btn { margin-top: 14px; }
+
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-content: start; }
+.stat {
+  border-radius: 14px; padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.22); border: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 4px; min-width: 0;
+}
+.stat-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--foam-mute); }
+.stat-val { font-variant-numeric: tabular-nums; color: var(--foam-dim); font-size: 13px; }
+.stat-val b { font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1.05; color: var(--foam); margin-right: 2px; }
+.minibar { height: 6px; border-radius: 999px; background: rgba(243, 233, 210, 0.08); overflow: hidden; margin-top: 4px; }
+.minibar i { display: block; height: 100%; width: 0%; background: var(--good); border-radius: inherit; transition: width 0.8s ease; }
+
+/* ---------- Section heads ---------- */
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.sec-head h2 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 28px; line-height: 1.1; }
+.sec-head p { margin: 0; color: var(--foam-mute); font-size: 13px; }
+
+/* ---------- The doors ---------- */
+.doors { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.door {
+  --arch-w: 72px; --arch-h: 112px; --glass-w: 40px;
+  position: relative;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  border-radius: var(--radius);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.3s ease;
+}
+.door.done { border-color: rgba(214, 176, 92, 0.6); box-shadow: 0 0 0 1px rgba(214, 176, 92, 0.25), 0 10px 30px rgba(214, 176, 92, 0.12); }
+.door.flash { animation: flash 0.9s ease; }
+@keyframes flash { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--door) 70%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
+.door-main {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 14px;
+  padding: 12px; border: 0; background: none; text-align: left; width: 100%; min-width: 0;
+}
+.door-main:hover .arch { transform: translateY(-2px); }
+.arch {
+  position: relative; display: block; flex: none;
+  width: var(--arch-w); height: var(--arch-h);
+  border-radius: calc(var(--arch-w) / 2) calc(var(--arch-w) / 2) 8px 8px;
+  background: var(--door);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.3), inset 0 -20px 26px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+@supports (color: color-mix(in oklab, red 50%, white)) {
+  .arch { background: linear-gradient(180deg, color-mix(in oklab, var(--door) 90%, white), color-mix(in oklab, var(--door) 58%, black)); }
+}
+.fan {
+  position: absolute; left: 7px; right: 7px; top: 7px; aspect-ratio: 2 / 1;
+  border-radius: 999px 999px 0 0;
+  background:
+    radial-gradient(circle at 50% 100%, rgba(30, 20, 14, 0.85) 0 13%, transparent 14%),
+    repeating-conic-gradient(from -90deg at 50% 100%, transparent 0deg 13deg, rgba(25, 17, 12, 0.7) 13deg 15deg),
+    radial-gradient(circle at 50% 100%, rgba(255, 236, 190, 0.9), rgba(255, 205, 120, 0.45) 75%);
+  box-shadow: 0 0 0 2px rgba(25, 17, 12, 0.55);
+}
+.glass { position: absolute; left: 50%; bottom: 7px; width: var(--glass-w); height: auto; transform: translateX(-50%); overflow: visible; }
+.g-back { fill: rgba(255, 255, 255, 0.07); }
+.g-rim { fill: none; stroke: rgba(255, 248, 230, 0.75); stroke-width: 1.6; }
+.g-shine { fill: none; stroke: rgba(255, 255, 255, 0.28); stroke-width: 2; stroke-linecap: round; }
+.liquid { transition: transform 1.1s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.foam { fill: #efe2c3; animation: slosh 3.4s linear infinite; }
+.head { transition: opacity 0.4s ease; }
+.head.empty { opacity: 0; }
+@keyframes slosh { from { transform: translateX(0); } to { transform: translateX(30px); } }
+.rank {
+  min-width: 26px; height: 20px; padding: 0 7px; border-radius: 999px;
+  display: inline-grid; place-items: center;
+  background: rgba(243, 233, 210, 0.1); color: var(--foam-dim);
+  font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: 0;
+}
+.rank.first { background: var(--brass); color: var(--ink-on-foam); border-color: transparent; }
+.info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.name { font-weight: 800; font-size: 17px; letter-spacing: 0.01em; display: flex; align-items: center; gap: 8px; }
+.name::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--door); flex: none; }
+.liters { font-variant-numeric: tabular-nums; color: var(--foam-mute); font-size: 13px; }
+.liters b { font-family: var(--font-display); font-weight: 400; font-size: 32px; line-height: 1; color: var(--foam); }
+.chip {
+  align-self: flex-start;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 12px; font-weight: 700;
+  border: 1px solid var(--line-strong); color: var(--foam-dim);
+  max-width: 100%;
+}
+.chip i { font-style: normal; font-size: 10px; }
+.chip.st-ahead { color: var(--good); border-color: rgba(92, 192, 139, 0.45); background: rgba(92, 192, 139, 0.08); }
+.chip.st-behind { color: var(--warn); border-color: rgba(233, 166, 64, 0.45); background: rgba(233, 166, 64, 0.08); }
+.chip.st-far, .chip.st-fail { color: var(--bad); border-color: rgba(239, 106, 85, 0.5); background: rgba(239, 106, 85, 0.08); }
+.chip.st-done { color: var(--ink-on-foam); background: var(--brass); border-color: transparent; }
+.pace, .last { font-size: 12.5px; color: var(--foam-dim); font-variant-numeric: tabular-nums; }
+.last { color: var(--foam-mute); }
+.quick {
+  width: 72px; border: 0; border-left: 1px solid var(--line);
+  background: rgba(214, 176, 92, 0.08); color: var(--brass);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  font-weight: 800; font-size: 13px; padding: 8px 4px; text-align: center;
+  transition: background 0.15s ease;
+}
+.quick:hover:not(:disabled) { background: rgba(214, 176, 92, 0.16); }
+.quick:active:not(:disabled) { background: rgba(214, 176, 92, 0.26); }
+.quick:disabled { color: var(--foam-mute); background: transparent; }
+.quick .plus { font-size: 24px; line-height: 1; font-weight: 600; }
+.quick small { font-size: 10.5px; font-weight: 600; color: var(--foam-mute); letter-spacing: 0.02em; }
+
+/* ---------- Race chart & bar tab ---------- */
+.lower { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
+.panel { border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line); padding: 16px; min-width: 0; }
+.chart { position: relative; width: 100%; min-height: 200px; }
+.chart svg { display: block; width: 100%; height: auto; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.chart .grid { stroke: rgba(243, 233, 210, 0.08); stroke-width: 1; }
+.chart .grid.goal { stroke: rgba(214, 176, 92, 0.55); stroke-dasharray: 2 4; }
+.chart .ylab, .chart .xlab, .chart .nowlab { fill: var(--foam-mute); font-size: 11px; font-family: var(--font-body); font-variant-numeric: tabular-nums; }
+.chart .ylab.goal { fill: var(--brass); font-weight: 700; }
+.chart .xtick { stroke: rgba(243, 233, 210, 0.2); }
+.chart .target { stroke: var(--brass); stroke-width: 1.5; stroke-dasharray: 6 5; opacity: 0.75; }
+.chart .nowline { stroke: rgba(243, 233, 210, 0.3); stroke-width: 1; }
+.chart .series { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart .enddot, .chart .hdot { stroke: var(--panel); stroke-width: 2; }
+.chart .cross { stroke: rgba(243, 233, 210, 0.45); stroke-width: 1; }
+.chart-empty { display: grid; place-items: center; min-height: 200px; text-align: center; color: var(--foam-dim); padding: 20px; border: 1px dashed var(--line-strong); border-radius: 14px; }
+.chart-empty p { margin: 0; max-width: 34ch; }
+.tip {
+  position: absolute; top: 6px; z-index: 2; pointer-events: none;
+  min-width: 160px; padding: 10px 12px; border-radius: 12px;
+  background: rgba(14, 11, 9, 0.94); border: 1px solid var(--line-strong);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  font-size: 12.5px; font-variant-numeric: tabular-nums;
+}
+.tip-h { font-weight: 800; margin-bottom: 6px; }
+.tip-h span { color: var(--foam-mute); font-weight: 600; margin-left: 4px; }
+.tip-r { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 8px; padding: 1px 0; color: var(--foam-dim); }
+.tip-r i { width: 10px; height: 3px; border-radius: 2px; }
+.tip-r b { color: var(--foam); font-weight: 700; }
+.tip-r.soll i { background: repeating-linear-gradient(90deg, var(--brass) 0 3px, transparent 3px 5px); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 12.5px; color: var(--foam-dim); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 14px; height: 3px; border-radius: 2px; }
+.legend .soll i { background: repeating-linear-gradient(90deg, var(--brass) 0 4px, transparent 4px 7px); }
+
+.entries { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.entry {
+  display: grid; grid-template-columns: 10px minmax(0, 1fr) auto auto; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--line); min-height: 48px;
+}
+.entry:last-child { border-bottom: 0; }
+.entry .dot { width: 10px; height: 10px; border-radius: 50%; }
+.e-main { min-width: 0; font-size: 14px; color: var(--foam-dim); }
+.e-main b { color: var(--foam); font-weight: 700; margin-right: 4px; }
+.e-time { font-size: 12.5px; color: var(--foam-mute); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.entry.off .e-main, .entry.off .e-time { opacity: 0.55; }
+.tag { font-style: normal; font-size: 11px; font-weight: 700; color: var(--warn); margin-left: 6px; white-space: nowrap; }
+.e-del {
+  width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line);
+  background: transparent; color: var(--foam-mute); font-size: 18px; line-height: 1;
+}
+.e-del:hover { color: var(--bad); border-color: rgba(239, 106, 85, 0.5); }
+.e-confirm { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--bad); }
+.mini {
+  min-height: 36px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--line-strong);
+  background: transparent; font-weight: 800; font-size: 13px;
+}
+.mini.danger { background: var(--bad); border-color: transparent; color: #1b0e0b; }
+.empty { color: var(--foam-mute); padding: 14px 0 6px; margin: 0; }
+.more { margin-top: 10px; width: 100%; }
+
+/* ---------- Settings ---------- */
+.settings { border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line); }
+.settings summary {
+  list-style: none; cursor: pointer; padding: 16px; display: flex; align-items: center; justify-content: space-between;
+  font-weight: 800;
+}
+.settings summary::-webkit-details-marker { display: none; }
+.settings summary::after { content: "+"; font-size: 22px; font-weight: 500; color: var(--brass); line-height: 1; }
+.settings[open] summary::after { content: "–"; }
+.set-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 0 16px 16px; }
+.set-block { border-top: 1px solid var(--line); padding-top: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.set-block h3 { margin: 0; font-size: 15px; }
+.set-block ul { margin: 0; padding-left: 18px; color: var(--foam-dim); font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.muted { color: var(--foam-dim); margin: 0; font-size: 14px; }
+.hint { color: var(--foam-mute); margin: 0; font-size: 13px; min-height: 1em; }
+.hint.err { color: var(--bad); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--foam-mute); }
+.field {
+  min-height: 44px; padding: 10px 12px; border-radius: 12px;
+  border: 1px solid var(--line-strong); background: var(--panel-2);
+  min-width: 0; flex: 1 1 180px;
+}
+.field:focus { border-color: var(--brass); outline: none; }
+.confirm { border: 1px solid rgba(239, 106, 85, 0.5); background: rgba(239, 106, 85, 0.07); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
+
+.foot { text-align: center; color: var(--foam-mute); font-size: 13px; }
+.foot b { font-family: var(--font-display); font-weight: 400; font-size: 20px; color: var(--brass); display: block; }
+
+/* ---------- Sheet ---------- */
+.sheet-wrap { position: fixed; inset: 0; z-index: 30; display: flex; align-items: flex-end; justify-content: center; }
+.sheet-backdrop { position: absolute; inset: 0; background: rgba(6, 4, 3, 0.66); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); animation: fade 0.18s ease; }
+.sheet {
+  position: relative; width: 100%; max-width: 560px; max-height: 92%;
+  overflow-y: auto; overscroll-behavior: contain;
+  background: var(--panel); border: 1px solid var(--line-strong); border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  padding: 18px max(16px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  animation: rise 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex; flex-direction: column; gap: 16px;
+}
+@keyframes rise { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.sheet-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+.sheet-head .arch { --arch-w: 56px; --arch-h: 86px; --glass-w: 30px; }
+.sheet-head h3 { margin: 2px 0 2px; font-family: var(--font-display); font-weight: 400; font-size: 34px; line-height: 1; }
+.sheet-sub { color: var(--foam-dim); font-size: 14px; font-variant-numeric: tabular-nums; }
+.icon-btn { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line-strong); background: transparent; font-size: 22px; line-height: 1; align-self: start; }
+.sizes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.size {
+  min-height: 72px; border-radius: 14px; border: 1px solid var(--line-strong);
+  background: var(--panel-2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  padding: 8px 4px; transition: transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.size b { font-size: 16px; font-weight: 800; }
+.size span { font-size: 12.5px; color: var(--foam-dim); font-variant-numeric: tabular-nums; }
+.size:hover:not(:disabled) { border-color: var(--brass); }
+.size:active:not(:disabled) { transform: scale(0.97); background: rgba(214, 176, 92, 0.16); }
+.size.pint { border-color: rgba(214, 176, 92, 0.6); background: rgba(214, 176, 92, 0.1); }
+.size:disabled { opacity: 0.45; }
+.custom { display: flex; flex-direction: column; gap: 6px; }
+.sheet h4 { margin: 0; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--foam-mute); }
+.sheet-warn { border-radius: 12px; padding: 10px 12px; font-size: 14px; border: 1px solid rgba(233, 166, 64, 0.5); background: rgba(233, 166, 64, 0.08); }
+
+/* ---------- Toast & cheer ---------- */
+.toast {
+  position: fixed; z-index: 40; left: 50%; transform: translateX(-50%);
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  width: max-content; max-width: calc(100% - 32px);
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 10px 10px 16px; border-radius: 14px;
+  background: var(--foam); color: var(--ink-on-foam);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+  font-weight: 700; font-size: 14px;
+  animation: rise 0.2s ease;
+}
+.toast.err { background: #f6c9bf; }
+.toast button { min-height: 38px; padding: 6px 12px; border-radius: 10px; border: 0; background: var(--ink-on-foam); color: var(--foam); font-weight: 800; white-space: nowrap; }
+.cheer { position: fixed; inset: 0; z-index: 35; pointer-events: none; display: grid; place-items: center; overflow: hidden; }
+.cheer-card {
+  text-align: center; padding: 26px 30px; border-radius: 24px;
+  background: rgba(14, 11, 9, 0.9); border: 1px solid var(--brass);
+  box-shadow: 0 0 0 6px rgba(214, 176, 92, 0.12), 0 30px 80px rgba(0, 0, 0, 0.6);
+  animation: pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1);
+  max-width: calc(100% - 32px);
+}
+.cheer-card .big { font-family: var(--font-display); font-size: clamp(2.6rem, 11vw, 4.4rem); line-height: 1; color: var(--brass); }
+.cheer-card .who { font-weight: 800; font-size: 22px; margin-top: 6px; }
+.cheer-card .sl { font-family: var(--font-display); font-style: italic; font-size: 22px; color: var(--foam-dim); margin-top: 4px; }
+.bubble { position: absolute; bottom: -40px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, rgba(255, 250, 235, 0.95), rgba(239, 226, 195, 0.6) 60%, rgba(239, 226, 195, 0) 72%); animation: up 3.6s ease-in forwards; }
+@keyframes up { to { transform: translateY(-115vh); opacity: 0.2; } }
+@keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ---------- Wider screens ---------- */
+@media (min-width: 720px) {
+  .hero { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); padding: 26px; align-items: start; }
+  .set-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .set-grid .set-block:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .sheet-wrap { align-items: center; padding: 24px; }
+  .sheet { border-radius: 24px; border-bottom: 1px solid var(--line-strong); padding: 22px; }
+}
+@media (min-width: 1080px) {
+  .doors { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; }
+  .door { --arch-w: 112px; --arch-h: 172px; --glass-w: 64px; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr auto; }
+  .door-main { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; padding: 16px 10px 12px; align-items: start; }
+  .door-main .arch { max-width: 100%; }
+  .info { align-items: center; }
+  .chip { align-self: center; }
+  .quick { width: auto; border-left: 0; border-top: 1px solid var(--line); flex-direction: row; gap: 6px; padding: 11px 6px; }
+  .quick .plus { font-size: 18px; }
+  .lower { grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); align-items: start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  .bubble { display: none; }
+}
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <div>
+      <div class="eyebrow">10 Liter · 24 Stunden · 7 Mann</div>
+      <h1 class="wordmark">Dublin <em>im</em> Hundi</h1>
+    </div>
+    <span class="pill" id="pill" role="status"><i aria-hidden="true"></i><span id="pillText">Verbinde …</span></span>
+  </header>
+
+  <div class="notice" id="notice" role="status" hidden></div>
+
+  <section class="hero" aria-label="Uhr und Gesamtstand">
+    <div>
+      <div class="clock-label" id="clockLabel">Verbinde …</div>
+      <div class="clock" id="clock" aria-live="off">––:––:––</div>
+      <div class="timebar" aria-hidden="true"><i id="timeFill"></i></div>
+      <div class="timeticks" aria-hidden="true"><span>Start</span><span>+6 h</span><span>+12 h</span><span>+18 h</span><span>24 h</span></div>
+      <p class="clock-sub" id="clockSub">Lade den Stand …</p>
+      <button type="button" class="btn" id="startNow" hidden>Uhr jetzt starten</button>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-label">Gruppe</span>
+        <span class="stat-val"><b id="sGroup">–</b> / 70 L</span>
+        <span class="minibar" aria-hidden="true"><i id="sGroupBar"></i></span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Soll pro Kopf</span>
+        <span class="stat-val"><b id="sSoll">–</b> L jetzt</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Im Soll</span>
+        <span class="stat-val"><b id="sOnTrack">–</b> von 7</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Getränke</span>
+        <span class="stat-val"><b id="sCount">–</b> <span id="sPints"></span></span>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="doorsTitle">
+    <div class="sec-head">
+      <h2 id="doorsTitle">Stand</h2>
+      <p>Tür antippen zum Eintragen · <b>+</b> wiederholt das letzte Getränk</p>
+    </div>
+    <div class="doors" id="doors"></div>
+  </section>
+
+  <div class="lower">
+    <section class="panel" aria-labelledby="raceTitle">
+      <div class="sec-head">
+        <h2 id="raceTitle">Rennverlauf</h2>
+        <p>Liter pro Kopf · gestrichelt das Soll für 10 L</p>
+      </div>
+      <div class="chart" id="chart"></div>
+      <div class="legend" id="legend"></div>
+    </section>
+    <section class="panel" aria-labelledby="feedTitle">
+      <div class="sec-head">
+        <h2 id="feedTitle">Letzte Runden</h2>
+        <p id="feedCount"></p>
+      </div>
+      <ul class="entries" id="feed"></ul>
+      <button type="button" class="btn ghost more" id="feedMore" hidden>Mehr anzeigen</button>
+    </section>
+  </div>
+
+  <details class="settings" id="settings">
+    <summary>Uhr &amp; Regeln</summary>
+    <div class="set-grid">
+      <div class="set-block">
+        <h3>Startzeit</h3>
+        <p class="muted" id="startInfo">Noch nicht gestartet.</p>
+        <label for="startInput">Start festlegen</label>
+        <div class="row">
+          <input class="field" type="datetime-local" id="startInput" step="60">
+          <button type="button" class="btn" id="startSave">Speichern</button>
+        </div>
+        <p class="hint" id="startHint"></p>
+        <div class="row">
+          <button type="button" class="btn ghost" id="startNow2">Jetzt starten</button>
+          <button type="button" class="btn danger" id="startReset">Uhr zurücksetzen</button>
+        </div>
+        <div class="confirm" id="startResetConfirm" hidden>
+          <span>Uhr wirklich zurücksetzen? Die Einträge bleiben, die Zeit startet beim nächsten Getränk neu.</span>
+          <div class="row">
+            <button type="button" class="btn danger solid" id="startResetYes">Ja, zurücksetzen</button>
+            <button type="button" class="btn ghost" id="startResetNo">Abbrechen</button>
+          </div>
+        </div>
+      </div>
+      <div class="set-block">
+        <h3>Regeln</h3>
+        <ul>
+          <li>Ziel: 10 Liter Bier pro Person in 24 Stunden ab Start.</li>
+          <li>Es zählt nur, was in diesen 24 Stunden eingetragen wurde (2 Minuten Kulanz für falsch gehende Handy-Uhren).</li>
+          <li>Jeder kann für jeden eintragen. Falsche Einträge im Verlauf mit × löschen.</li>
+          <li>Pint = 0,568 L, das Irish Imperial Pint. ½ Pint = 0,284 L.</li>
+        </ul>
+      </div>
+      <div class="set-block" id="ownerBlock" hidden>
+        <h3>Alle Einträge löschen</h3>
+        <p class="muted">Leert den Verlauf für alle, zum Beispiel nach einer Testrunde. Nur für dich als Besitzer sichtbar.</p>
+        <div class="row"><button type="button" class="btn danger" id="wipeBtn">Alle Einträge löschen</button></div>
+        <div class="confirm" id="wipeConfirm" hidden>
+          <span id="wipeQuestion">Wirklich alle Einträge löschen?</span>
+          <div class="row">
+            <button type="button" class="btn danger solid" id="wipeYes">Ja, alles löschen</button>
+            <button type="button" class="btn ghost" id="wipeNo">Abbrechen</button>
+          </div>
+        </div>
+        <p class="hint" id="wipeStatus"></p>
+      </div>
+    </div>
+  </details>
+
+  <footer class="foot"><b>Sláinte!</b>Wasser zählt nicht, hilft aber.</footer>
+</div>
+
+<div class="sheet-wrap" id="sheet" hidden>
+  <div class="sheet-backdrop" data-close></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" id="sheetBox">
+    <div class="sheet-head" id="sheetHead">
+      <span class="arch" id="sheetArch"></span>
+      <div>
+        <div class="eyebrow">Eintragen für</div>
+        <h3 id="sheetTitle" tabindex="-1">–</h3>
+        <div class="sheet-sub" id="sheetSub"></div>
+      </div>
+      <button type="button" class="icon-btn" data-close aria-label="Schließen">×</button>
+    </div>
+    <div class="sheet-warn" id="sheetWarn" hidden></div>
+    <div class="sizes" id="sizes"></div>
+    <form class="custom" id="customForm" novalidate>
+      <label for="customAmount">Andere Menge in Litern</label>
+      <div class="row">
+        <input class="field" id="customAmount" type="text" inputmode="decimal" autocomplete="off" placeholder="z. B. 0,4">
+        <button type="submit" class="btn" id="customAdd">Eintragen</button>
+      </div>
+      <p class="hint" id="customHint"></p>
+    </form>
+    <h4 id="sheetListTitle">Getränke</h4>
+    <ul class="entries" id="sheetEntries"></ul>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toastText"></span><button type="button" id="toastBtn" hidden></button></div>
+<div class="cheer" id="cheer" aria-live="polite" hidden></div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* Link to the live app, shown when this page is opened outside the Claude viewer. */
+  const APP_URL = 'https://claude.ai/artifact/MbekUuWpJCdUTyhoQjaYtv';
+
+  const PEOPLE = [
+    { id: 'tim',       name: 'Tim',       color: '#E0533F' },
+    { id: 'luetti',    name: 'Lütti',     color: '#4C7FE0' },
+    { id: 'jan',       name: 'Jan',       color: '#BA8915' },
+    { id: 'jannik',    name: 'Jannik',    color: '#B067C9' },
+    { id: 'christoph', name: 'Christoph', color: '#3FA66B' },
+    { id: 'robin',     name: 'Robin',     color: '#DE7428' },
+    { id: 'carsten',   name: 'Carsten',   color: '#1E9C97' },
+  ];
+  const BY_ID = Object.fromEntries(PEOPLE.map(p => [p.id, p]));
+  const GOAL_ML = 10000;
+  const DURATION = 24 * 3600 * 1000;
+  const GRACE = 2 * 60 * 1000;
+  const PINT = 568;
+  const SIZES = [
+    { ml: 568,  name: 'Pint',    sub: '0,568 L' },
+    { ml: 500,  name: 'Halbe',   sub: '0,5 L' },
+    { ml: 440,  name: 'Dose',    sub: '0,44 L' },
+    { ml: 330,  name: 'Flasche', sub: '0,33 L' },
+    { ml: 284,  name: '½ Pint',  sub: '0,284 L' },
+    { ml: 1000, name: 'Maß',     sub: '1,0 L' },
+  ];
+
+  const S = {
+    db: null, noDb: false, revoked: false,
+    drinks: [], drinksLoaded: false, drinksConfirmed: false, drinksCache: true,
+    startAt: null, configLoaded: false, configConfirmed: false, configCache: true,
+    stale: false, canWrite: null, isOwner: false,
+    openPerson: null, pendingDelete: null, feedLimit: 8,
+    shieldUntil: 0, lastQuick: {}, prevTotals: null, configBusy: false, wiping: false,
+    startDirty: false, model: null,
+  };
+
+  /* ---------- helpers ---------- */
+  const $ = (s, r = document) => r.querySelector(s);
+  const pad = n => String(n).padStart(2, '0');
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const nf2 = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const nf1 = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const nfL = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 3 });
+  const L2 = ml => nf2.format(ml / 1000);
+  const L1 = ml => nf1.format(ml / 1000);
+  const trimL = ml => nfL.format(ml / 1000);
+  const WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+  const hhmm = ts => { const d = new Date(ts); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+  const dayTime = ts => WD[new Date(ts).getDay()] + ' ' + hhmm(ts);
+  const hms = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60); };
+  function dur(ms) { const m = Math.max(0, Math.round(ms / 60000)); const h = Math.floor(m / 60); return h ? h + ' h ' + pad(m % 60) + ' min' : m + ' min'; }
+  function rel(ts, now) {
+    const m = Math.floor((now - ts) / 60000);
+    if (m < 1) return 'gerade eben';
+    if (m < 60) return 'vor ' + m + ' min';
+    const h = Math.floor(m / 60);
+    if (h < 24) return 'vor ' + h + ' h ' + (m % 60) + ' min';
+    return dayTime(ts);
+  }
+  function everyMin(min) {
+    if (!isFinite(min)) return '';
+    if (min < 1) return 'unter 1 min';
+    if (min < 60) return Math.round(min) + ' min';
+    const t = Math.round(min); return Math.floor(t / 60) + ' h ' + pad(t % 60) + ' min';
+  }
+  function sizeName(ml) { const s = SIZES.find(x => x.ml === ml); return s ? s.name : trimL(ml) + ' L'; }
+  function sizeLine(ml) { const s = SIZES.find(x => x.ml === ml); return s ? s.name + ' · ' + trimL(ml) + ' L' : trimL(ml) + ' L'; }
+  function quickName(ml) { return ml === PINT ? 'Pint' : ml === 284 ? '½ Pint' : trimL(ml) + ' L'; }
+  function canWriteNow() { return !!S.db && !S.revoked && S.canWrite !== false && !S.wiping; }
+  function isCounted(d) {
+    if (S.startAt == null) return true;
+    return d.ts >= S.startAt - GRACE && d.ts <= S.startAt + DURATION + GRACE;
+  }
+  function toLocalInput(ts) { const d = new Date(ts); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+
+  /* ---------- model ---------- */
+  function compute(now) {
+    const started = S.startAt != null;
+    const start = started ? S.startAt : null;
+    const end = started ? S.startAt + DURATION : null;
+    const frac = started ? clamp((now - start) / DURATION, 0, 1) : 0;
+    const ended = started && now >= end;
+    const expected = GOAL_ML * frac;
+    const per = {};
+    for (const p of PEOPLE) per[p.id] = { total: 0, count: 0, last: null, lastMl: null, doneAt: null, series: [] };
+    let groupMl = 0, countAll = 0;
+    for (const d of S.drinks) {
+      const r = per[d.p]; if (!r) continue;
+      r.last = d.ts; r.lastMl = d.ml;
+      if (!isCounted(d)) continue;
+      r.total += d.ml; r.count += 1; groupMl += d.ml; countAll += 1;
+      r.series.push([d.ts, r.total]);
+      if (r.doneAt == null && r.total >= GOAL_ML) r.doneAt = d.ts;
+    }
+    let onTrack = 0;
+    for (const p of PEOPLE) {
+      const r = per[p.id];
+      r.rank = r.total > 0 ? 1 + PEOPLE.filter(q => per[q.id].total > r.total).length : null;
+      if (r.total >= GOAL_ML) { r.st = 'done'; r.chip = 'Geschafft' + (started && r.doneAt ? ' nach ' + dur(Math.max(0, r.doneAt - start)) : ''); }
+      else if (!started) { r.st = 'idle'; r.chip = 'Bereit'; }
+      else if (ended) { r.st = 'fail'; r.chip = L2(GOAL_ML - r.total) + ' L gefehlt'; }
+      else {
+        const diff = r.total - expected;
+        if (diff >= -100) { r.st = 'ahead'; r.chip = diff >= 10 ? 'Im Soll · +' + L2(diff) + ' L' : 'Im Soll'; }
+        else if (diff > -1000) { r.st = 'behind'; r.chip = L2(-diff) + ' L hinter Soll'; }
+        else { r.st = 'far'; r.chip = L2(-diff) + ' L hinter Soll'; }
+      }
+      if (r.st === 'ahead' || r.st === 'done') onTrack += 1;
+      if (r.st === 'done') r.pace = r.count + (r.count === 1 ? ' Getränk' : ' Getränke');
+      else if (ended) r.pace = r.count + (r.count === 1 ? ' Getränk' : ' Getränke');
+      else {
+        const remMl = GOAL_ML - r.total;
+        const remH = started ? (end - now) / 3600000 : 24;
+        if (remH <= 0.02) r.pace = 'Endspurt!';
+        else { const mlph = remMl / remH; r.pace = 'Braucht ' + L2(mlph) + ' L/h · 1 Pint alle ' + everyMin(60 * PINT / mlph); }
+      }
+    }
+    return { now, started, start, end, frac, ended, expected, per, groupMl, countAll, onTrack };
+  }
+
+  /* ---------- static markup ---------- */
+  const GLASS_PATH = 'M9 5H51C53 22 55 32 53.5 44C52 62 47.5 80 46 95H14C12.5 80 8 62 6.5 44C5 32 7 22 9 5Z';
+  function glassSVG(key) {
+    return '<svg class="glass" viewBox="0 0 60 100" aria-hidden="true" focusable="false">' +
+      '<defs><clipPath id="clip-' + key + '"><path d="' + GLASS_PATH + '"/></clipPath>' +
+      '<linearGradient id="beer-' + key + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b2416"/><stop offset=".22" stop-color="#26120b"/><stop offset="1" stop-color="#0c0604"/></linearGradient></defs>' +
+      '<path class="g-back" d="' + GLASS_PATH + '"/>' +
+      '<g clip-path="url(#clip-' + key + ')"><g class="liquid" data-k="liquid" style="transform:translateY(95px)">' +
+      '<rect x="-5" y="0" width="70" height="110" fill="url(#beer-' + key + ')"/>' +
+      '<g class="head empty" data-k="head"><path class="foam" d="M-60 -4q7.5-3 15 0t15 0t15 0t15 0t15 0t15 0t15 0t15 0t15 0t15 0V3H-60Z"/></g>' +
+      '</g></g>' +
+      '<path class="g-rim" d="' + GLASS_PATH + '"/>' +
+      '<path class="g-shine" d="M14 13C12 30 12 52 16.5 80"/>' +
+      '</svg>';
+  }
+  function setGlass(liquidEl, headEl, total) {
+    let f = clamp(total / GOAL_ML, 0, 1);
+    if (total > 0) f = Math.max(f, 0.045);
+    liquidEl.style.transform = 'translateY(' + (95 - f * 88).toFixed(2) + 'px)';
+    headEl.classList.toggle('empty', total <= 0);
+  }
+
+  const doorRefs = {};
+  function buildDoors() {
+    const wrap = $('#doors');
+    wrap.innerHTML = PEOPLE.map(p =>
+      '<article class="door" id="door-' + p.id + '" style="--door:' + p.color + '">' +
+        '<button type="button" class="door-main" data-open="' + p.id + '" aria-label="' + esc(p.name) + ': Getränk eintragen">' +
+          '<span class="arch"><span class="fan" aria-hidden="true"></span>' + glassSVG(p.id) + '</span>' +
+          '<span class="info">' +
+            '<span class="name">' + esc(p.name) + '<span class="rank" data-k="rank" hidden></span></span>' +
+            '<span class="liters"><b data-k="liters">–</b> / 10 L</span>' +
+            '<span class="chip" data-k="chip"><i aria-hidden="true" data-k="chipIcon">●</i><span data-k="chipText">Lade …</span></span>' +
+            '<span class="pace" data-k="pace"></span>' +
+            '<span class="last" data-k="last"></span>' +
+          '</span>' +
+        '</button>' +
+        '<button type="button" class="quick" data-quick="' + p.id + '" disabled><span class="plus" aria-hidden="true">+</span><span data-k="quick">Pint</span><small data-k="quickSub">schnell</small></button>' +
+      '</article>').join('');
+    for (const p of PEOPLE) {
+      const root = $('#door-' + p.id);
+      const refs = { root };
+      root.querySelectorAll('[data-k]').forEach(el => { refs[el.dataset.k] = el; });
+      refs.quickBtn = root.querySelector('.quick');
+      doorRefs[p.id] = refs;
+    }
+    $('#legend').innerHTML = PEOPLE.map(p => '<span><i style="background:' + p.color + '"></i>' + esc(p.name) + '</span>').join('') +
+      '<span class="soll"><i></i>Soll</span>';
+    $('#sizes').innerHTML = SIZES.map(s =>
+      '<button type="button" class="size' + (s.ml === PINT ? ' pint' : '') + '" data-ml="' + s.ml + '"><b>' + esc(s.name) + '</b><span>' + esc(s.sub) + '</span></button>').join('');
+    const cheer = $('#cheer');
+    let bubbles = '';
+    for (let i = 0; i < 26; i++) {
+      const size = 8 + Math.round(Math.random() * 26);
+      bubbles += '<span class="bubble" style="left:' + (Math.random() * 100).toFixed(1) + '%;width:' + size + 'px;height:' + size + 'px;animation-delay:' + (Math.random() * 1.4).toFixed(2) + 's"></span>';
+    }
+    cheer.innerHTML = bubbles + '<div class="cheer-card"><div class="big">10 Liter!</div><div class="who" id="cheerWho"></div><div class="sl">Sláinte!</div></div>';
+  }
+
+  /* ---------- rendering ---------- */
+  const CHIP_ICON = { ahead: '▲', behind: '▼', far: '▼', done: '★', idle: '●', fail: '✕' };
+
+  function renderAll() {
+    const M = compute(Date.now());
+    S.model = M;
+    renderStatus();
+    renderHero(M);
+    renderDoors(M);
+    renderChart(M);
+    renderFeed(M);
+    renderSheet(M);
+    renderSettings(M);
+  }
+
+  function renderStatus() {
+    const pill = $('#pill'), txt = $('#pillText');
+    let cls = '', t = 'Verbinde …';
+    if (S.noDb || S.revoked) { cls = 'off'; t = 'Nicht verbunden'; }
+    else if (S.drinksConfirmed && S.configConfirmed && !S.drinksCache && !S.configCache) {
+      if (S.canWrite === false) { cls = 'ro'; t = 'Live · nur ansehen'; } else { cls = 'live'; t = 'Live'; }
+    } else if (S.stale) { cls = ''; t = 'Verbindung hakt'; }
+    pill.className = 'pill ' + cls; txt.textContent = t;
+
+    const n = $('#notice');
+    let html = '', kind = '';
+    if (S.noDb) {
+      kind = 'bad';
+      html = '<b>Nicht verbunden.</b> Gemeinsam gespeichert wird nur in der Claude-App. ' +
+        (APP_URL ? 'Öffne die App hier: <a href="' + esc(APP_URL) + '" target="_blank" rel="noopener">' + esc(APP_URL) + '</a>. ' : 'Öffne den geteilten Link und melde dich an. ') +
+        'Eintragen ist hier gesperrt, damit nichts verloren geht.';
+    } else if (S.revoked) {
+      kind = 'bad'; html = '<b>Kein Zugriff mehr auf die gemeinsamen Daten.</b> Eintragen ist gesperrt.';
+    } else if (S.canWrite === false) {
+      kind = 'info'; html = '<b>Nur zuschauen.</b> Dein Zugang darf nichts eintragen. Der Besitzer der App kann dich als Bearbeiter einladen.';
+    } else if (S.stale) {
+      kind = 'warn'; html = '<b>Verbindung hakt.</b> Der Stand ist eventuell nicht aktuell. Es wird automatisch weiter versucht.';
+    }
+    n.hidden = !html; n.className = 'notice ' + kind; n.innerHTML = html;
+  }
+
+  function renderHero(M) {
+    renderClock(M.now);
+    const ready = S.drinksLoaded;
+    $('#sGroup').textContent = ready ? L1(M.groupMl) : '–';
+    $('#sGroupBar').style.width = ready ? clamp(M.groupMl / (GOAL_ML * PEOPLE.length) * 100, 0, 100).toFixed(1) + '%' : '0%';
+    $('#sSoll').textContent = S.configLoaded ? L2(M.expected) : '–';
+    $('#sOnTrack').textContent = ready && S.configLoaded ? String(M.onTrack) : '–';
+    $('#sCount').textContent = ready ? String(M.countAll) : '–';
+    $('#sPints').textContent = ready ? '≈ ' + nf1.format(M.groupMl / PINT) + ' Pints' : '';
+    const btn = $('#startNow');
+    btn.hidden = !(S.configLoaded && !M.started);
+    btn.disabled = !canWriteNow() || S.configBusy;
+  }
+
+  let lastEndedState = null;
+  function renderClock(now) {
+    const label = $('#clockLabel'), clock = $('#clock'), sub = $('#clockSub'), fill = $('#timeFill');
+    if (!S.configLoaded) {
+      label.textContent = S.noDb ? 'Nicht verbunden' : 'Verbinde …';
+      clock.textContent = '––:––:––';
+      sub.textContent = S.noDb ? 'Ohne Verbindung gibt es keinen gemeinsamen Stand.' : 'Lade den Stand …';
+      fill.style.width = '0%';
+      return;
+    }
+    if (S.startAt == null) {
+      label.textContent = 'Bereit am Zapfhahn';
+      clock.textContent = '24:00:00';
+      sub.textContent = 'Die Uhr startet automatisch mit dem ersten Getränk. Oder jetzt per Knopf.';
+      fill.style.width = '0%';
+      lastEndedState = null;
+      return;
+    }
+    const end = S.startAt + DURATION;
+    const ended = now >= end;
+    if (lastEndedState !== null && lastEndedState !== ended) { lastEndedState = ended; renderAll(); return; }
+    lastEndedState = ended;
+    label.textContent = ended ? 'Zeit um · Endstand' : 'Noch';
+    clock.textContent = ended ? '00:00:00' : hms(end - now);
+    sub.textContent = 'Start ' + dayTime(S.startAt) + ' · Ende ' + dayTime(end);
+    fill.style.width = (clamp((now - S.startAt) / DURATION, 0, 1) * 100).toFixed(2) + '%';
+  }
+
+  function renderDoors(M) {
+    const ready = S.drinksLoaded;
+    for (const p of PEOPLE) {
+      const r = M.per[p.id], el = doorRefs[p.id];
+      el.liters.textContent = ready ? L2(r.total) : '–';
+      setGlass(el.liquid, el.head, ready ? r.total : 0);
+      if (ready && r.rank) { el.rank.hidden = false; el.rank.textContent = '#' + r.rank; el.rank.title = 'Platz ' + r.rank; el.rank.classList.toggle('first', r.rank === 1); }
+      else el.rank.hidden = true;
+      if (ready && S.configLoaded) {
+        el.chip.className = 'chip st-' + r.st;
+        el.chipIcon.textContent = CHIP_ICON[r.st];
+        el.chipText.textContent = r.chip;
+        el.pace.textContent = r.pace;
+        el.last.textContent = r.last ? 'Zuletzt ' + rel(r.last, M.now) : 'Noch nichts getrunken';
+      } else {
+        el.chip.className = 'chip'; el.chipIcon.textContent = '●';
+        el.chipText.textContent = S.noDb ? 'Offline' : 'Lade …';
+        el.pace.textContent = ''; el.last.textContent = '';
+      }
+      el.root.classList.toggle('done', ready && r.st === 'done');
+      const qml = r.lastMl || PINT;
+      el.quick.textContent = quickName(qml);
+      el.quickSub.textContent = r.lastMl ? 'nochmal' : 'schnell';
+      el.quickBtn.dataset.ml = String(qml);
+      el.quickBtn.setAttribute('aria-label', p.name + ': ' + sizeName(qml) + ' (' + trimL(qml) + ' L) eintragen');
+      el.quickBtn.disabled = !canWriteNow() || !ready;
+    }
+  }
+
+  function entryHTML(d, showName, writable) {
+    const p = BY_ID[d.p];
+    const counted = isCounted(d);
+    const id = esc(d.id);
+    let tail;
+    if (S.pendingDelete === d.id) {
+      tail = '<span class="e-confirm"><span>Löschen?</span><button type="button" class="mini danger" data-del-yes="' + id + '">Ja</button><button type="button" class="mini" data-del-no="1">Nein</button></span>';
+    } else if (writable) {
+      tail = '<button type="button" class="e-del" data-del="' + id + '" aria-label="Eintrag löschen: ' + esc(p.name) + ', ' + esc(sizeLine(d.ml)) + ', ' + hhmm(d.ts) + '">×</button>';
+    } else tail = '<span></span>';
+    return '<li class="entry' + (counted ? '' : ' off') + '">' +
+      '<span class="dot" style="background:' + p.color + '"></span>' +
+      '<span class="e-main">' + (showName ? '<b>' + esc(p.name) + '</b>' : '') + esc(sizeLine(d.ml)) + (counted ? '' : '<em class="tag">zählt nicht</em>') + '</span>' +
+      '<time class="e-time" datetime="' + new Date(d.ts).toISOString() + '">' + dayTime(d.ts) + '</time>' + tail + '</li>';
+  }
+
+  function renderFeed(M) {
+    const ul = $('#feed'), more = $('#feedMore');
+    if (!S.drinksLoaded) { ul.innerHTML = '<li class="empty">' + (S.noDb ? 'Keine Verbindung zum gemeinsamen Verlauf.' : 'Lade den Verlauf …') + '</li>'; more.hidden = true; $('#feedCount').textContent = ''; return; }
+    if (!S.drinks.length) {
+      ul.innerHTML = '<li class="empty">Noch nichts gezapft. Tippe oben auf eine Tür, um das erste Getränk einzutragen. Damit startet auch die Uhr.</li>';
+      more.hidden = true; $('#feedCount').textContent = ''; return;
+    }
+    const list = S.drinks.slice().reverse();
+    const writable = canWriteNow();
+    ul.innerHTML = list.slice(0, S.feedLimit).map(d => entryHTML(d, true, writable)).join('');
+    more.hidden = list.length <= S.feedLimit;
+    $('#feedCount').textContent = list.length + (list.length === 1 ? ' Eintrag' : ' Einträge');
+  }
+
+  function renderSheet(M) {
+    if (!S.openPerson) return;
+    const p = BY_ID[S.openPerson], r = M.per[p.id];
+    $('#sheetTitle').textContent = p.name;
+    $('#sheetSub').textContent = S.drinksLoaded ? L2(r.total) + ' L von 10 L · ' + (S.configLoaded ? r.chip : '') : '';
+    setGlass($('#sheetArch .liquid'), $('#sheetArch .head'), S.drinksLoaded ? r.total : 0);
+    const warn = $('#sheetWarn');
+    let w = '';
+    if (!canWriteNow()) w = S.noDb ? 'Nicht verbunden: Eintragen ist gesperrt.' : 'Du kannst hier nur zuschauen.';
+    else if (M.ended) w = 'Die 24 Stunden sind vorbei. Neue Getränke zählen nicht mehr für das Ziel.';
+    else if (S.configConfirmed && !M.started) w = 'Mit diesem Getränk startet die 24-Stunden-Uhr.';
+    warn.hidden = !w; warn.textContent = w;
+    const writable = canWriteNow();
+    $('#sizes').querySelectorAll('button').forEach(b => { b.disabled = !writable; });
+    $('#customAdd').disabled = !writable;
+    $('#sheetListTitle').textContent = 'Getränke von ' + p.name + (r.count ? ' (' + r.count + ')' : '');
+    const mine = S.drinks.filter(d => d.p === p.id).reverse();
+    $('#sheetEntries').innerHTML = mine.length ? mine.map(d => entryHTML(d, false, writable)).join('') : '<li class="empty">Noch nichts eingetragen.</li>';
+  }
+
+  function renderSettings(M) {
+    const info = $('#startInfo');
+    if (!S.configLoaded) info.textContent = 'Lade …';
+    else if (S.startAt == null) info.textContent = 'Noch nicht gestartet. Die Uhr startet automatisch mit dem ersten Getränk.';
+    else info.textContent = 'Gestartet ' + dayTime(S.startAt) + ', Ende ' + dayTime(S.startAt + DURATION) + '.';
+    const input = $('#startInput');
+    if (!S.startDirty && document.activeElement !== input) input.value = S.startAt != null ? toLocalInput(S.startAt) : '';
+    const w = canWriteNow() && S.configLoaded;
+    ['#startSave', '#startNow2'].forEach(s => { $(s).disabled = !w || S.configBusy; });
+    $('#startReset').disabled = !w || S.configBusy || S.startAt == null;
+    input.disabled = !w;
+    $('#ownerBlock').hidden = !(S.isOwner && S.db);
+    $('#wipeBtn').disabled = !canWriteNow() || !S.drinks.length;
+    if (S.startDirty) updateStartHint();
+  }
+
+  /* ---------- chart ---------- */
+  let chartGeo = null;
+  function renderChart(M) {
+    const wrap = $('#chart');
+    if (!S.configLoaded || !S.drinksLoaded) { wrap.innerHTML = '<div class="chart-empty"><p>' + (S.noDb ? 'Keine Verbindung.' : 'Lade …') + '</p></div>'; chartGeo = null; return; }
+    if (!M.started) {
+      wrap.innerHTML = '<div class="chart-empty"><p><b>Das Rennen hat noch nicht begonnen.</b><br>Sobald die Uhr läuft, siehst du hier, wer wie schnell trinkt.</p></div>';
+      chartGeo = null; return;
+    }
+    const W = Math.max(280, Math.round(wrap.clientWidth || 600));
+    const H = W < 560 ? 240 : 330;
+    const m = { l: 40, r: 14, t: 20, b: 28 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const maxTot = Math.max(GOAL_ML, ...PEOPLE.map(p => M.per[p.id].total));
+    const yMax = Math.ceil(maxTot / 2000) * 2000;
+    const tEnd = Math.min(M.now, M.end);
+    const X = t => m.l + clamp((t - M.start) / DURATION, 0, 1) * iw;
+    const Y = ml => m.t + ih - (ml / yMax) * ih;
+    let g = '';
+    for (let v = 0; v <= yMax; v += 2000) {
+      const y = Y(v).toFixed(1), goal = v === GOAL_ML;
+      g += '<line class="grid' + (goal ? ' goal' : '') + '" x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y + '" y2="' + y + '"/>';
+      g += '<text class="ylab' + (goal ? ' goal' : '') + '" x="' + (m.l - 8) + '" y="' + y + '" dy="0.32em" text-anchor="end">' + (v / 1000) + (goal || v === 0 ? ' L' : '') + '</text>';
+    }
+    for (let h = 0; h <= 24; h += 6) {
+      const x = X(M.start + h * 3600000).toFixed(1);
+      g += '<line class="xtick" x1="' + x + '" x2="' + x + '" y1="' + (m.t + ih) + '" y2="' + (m.t + ih + 4) + '"/>';
+      g += '<text class="xlab" x="' + x + '" y="' + (H - 6) + '" text-anchor="' + (h === 0 ? 'start' : h === 24 ? 'end' : 'middle') + '">' + (h === 0 ? hhmm(M.start) : h === 24 ? hhmm(M.end) : '+' + h + ' h') + '</text>';
+    }
+    g += '<line class="target" x1="' + X(M.start).toFixed(1) + '" y1="' + Y(0).toFixed(1) + '" x2="' + X(M.end).toFixed(1) + '" y2="' + Y(GOAL_ML).toFixed(1) + '"/>';
+    if (!M.ended) {
+      const xn = X(M.now);
+      g += '<line class="nowline" x1="' + xn.toFixed(1) + '" x2="' + xn.toFixed(1) + '" y1="' + m.t + '" y2="' + (m.t + ih) + '"/>';
+      g += '<text class="nowlab" x="' + xn.toFixed(1) + '" y="' + (m.t - 7) + '" text-anchor="' + (xn > W - 40 ? 'end' : xn < m.l + 30 ? 'start' : 'middle') + '">jetzt</text>';
+    }
+    const order = PEOPLE.slice().sort((a, b) => M.per[a.id].total - M.per[b.id].total);
+    for (const p of order) {
+      const r = M.per[p.id];
+      let d = 'M' + X(M.start).toFixed(1) + ' ' + Y(0).toFixed(1);
+      for (const [ts, tot] of r.series) d += 'H' + X(Math.min(ts, tEnd)).toFixed(1) + 'V' + Y(tot).toFixed(1);
+      d += 'H' + X(tEnd).toFixed(1);
+      g += '<path class="series" d="' + d + '" stroke="' + p.color + '"/>';
+    }
+    for (const p of order) g += '<circle class="enddot" cx="' + X(tEnd).toFixed(1) + '" cy="' + Y(M.per[p.id].total).toFixed(1) + '" r="4" fill="' + p.color + '"/>';
+    g += '<g id="hoverLayer" visibility="hidden"></g>';
+    const leader = order[order.length - 1];
+    const aria = 'Rennverlauf. Vorne: ' + leader.name + ' mit ' + L2(M.per[leader.id].total) + ' Litern. Soll jetzt ' + L2(M.expected) + ' Liter.';
+    wrap.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" role="img" aria-label="' + esc(aria) + '">' + g + '</svg><div class="tip" id="tip" hidden></div>';
+    chartGeo = { W, H, m, iw, ih, X, Y, tEnd, M };
+  }
+  function chartHover(e) {
+    const G = chartGeo; if (!G) return;
+    const svg = $('#chart svg'), layer = $('#hoverLayer'), tip = $('#tip');
+    if (!svg || !layer || !tip) return;
+    const rect = svg.getBoundingClientRect(); if (!rect.width) return;
+    const k = G.W / rect.width;
+    const sx = (e.clientX - rect.left) * k;
+    if (sx < G.m.l - 6 || sx > G.W - G.m.r + 6) { hideHover(); return; }
+    let t = G.M.start + (clamp(sx, G.m.l, G.m.l + G.iw) - G.m.l) / G.iw * DURATION;
+    t = Math.min(t, G.tEnd);
+    const vals = PEOPLE.map(p => {
+      let v = 0;
+      for (const [ts, tot] of G.M.per[p.id].series) { if (Math.min(ts, G.tEnd) <= t) v = tot; else break; }
+      return { p, v };
+    }).sort((a, b) => b.v - a.v);
+    const x = G.X(t);
+    layer.innerHTML = '<line class="cross" x1="' + x.toFixed(1) + '" x2="' + x.toFixed(1) + '" y1="' + G.m.t + '" y2="' + (G.m.t + G.ih) + '"/>' +
+      vals.map(o => '<circle class="hdot" cx="' + x.toFixed(1) + '" cy="' + G.Y(o.v).toFixed(1) + '" r="4.5" fill="' + o.p.color + '"/>').join('');
+    layer.setAttribute('visibility', 'visible');
+    const soll = GOAL_ML * clamp((t - G.M.start) / DURATION, 0, 1);
+    tip.innerHTML = '<div class="tip-h">' + dayTime(t) + '<span>+' + dur(t - G.M.start) + '</span></div>' +
+      vals.map(o => '<div class="tip-r"><i style="background:' + o.p.color + '"></i><span>' + esc(o.p.name) + '</span><b>' + L2(o.v) + ' L</b></div>').join('') +
+      '<div class="tip-r soll"><i></i><span>Soll</span><b>' + L2(soll) + ' L</b></div>';
+    tip.hidden = false;
+    const px = x / k, tw = tip.offsetWidth, cw = rect.width;
+    let left = px + 14;
+    if (left + tw > cw) left = px - tw - 14;
+    tip.style.left = clamp(left, 0, Math.max(0, cw - tw)) + 'px';
+  }
+  function hideHover() {
+    const layer = $('#hoverLayer'), tip = $('#tip');
+    if (layer) layer.setAttribute('visibility', 'hidden');
+    if (tip) tip.hidden = true;
+  }
+
+  /* ---------- toast & cheer ---------- */
+  let toastTimer = null, toastAction = null;
+  function toast(msg, opts = {}) {
+    const el = $('#toast'), btn = $('#toastBtn');
+    $('#toastText').textContent = msg;
+    el.classList.toggle('err', !!opts.err);
+    toastAction = opts.action || null;
+    btn.hidden = !toastAction;
+    if (toastAction) btn.textContent = toastAction.label;
+    el.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.hidden = true; toastAction = null; }, opts.ms || (toastAction ? 7000 : 4000));
+  }
+  let cheerTimer = null;
+  function celebrate(p) {
+    const el = $('#cheer');
+    $('#cheerWho').textContent = p.name;
+    el.hidden = true; void el.offsetWidth; el.hidden = false;
+    el.querySelectorAll('.bubble').forEach(b => { b.style.animation = 'none'; void b.offsetWidth; b.style.animation = ''; });
+    clearTimeout(cheerTimer);
+    cheerTimer = setTimeout(() => { el.hidden = true; }, 4800);
+  }
+
+  /* ---------- writes ---------- */
+  function writeError(e) {
+    const code = e && e.code;
+    if (code === 'invalid_argument' || code === 'transform_error') {
+      if (S.canWrite !== true) { S.canWrite = false; renderAll(); toast('Dein Zugang darf nichts eintragen.', { err: true }); return; }
+      toast('Eintrag wurde abgelehnt. Bitte nochmal versuchen.', { err: true }); return;
+    }
+    if (code === 'quota_exceeded') { toast('Der Speicher ist voll. Alte Einträge löschen.', { err: true }); return; }
+    if (code === 'resource_exhausted') { toast('Zu viele Eingaben auf einmal. Kurz warten, dann nochmal.', { err: true }); return; }
+    if (code === 'revoked' || code === 'not_granted' || code === 'capability_disabled' || code === 'capability_removed') { S.revoked = true; renderAll(); toast('Keine Verbindung mehr zum Speicher.', { err: true }); return; }
+    toast('Konnte nicht speichern. Bitte nochmal versuchen.', { err: true });
+  }
+  async function safeWrite(fn) {
+    try { await fn(); return true; }
+    catch (e) {
+      if (e && e.code === 'unavailable') {
+        await sleep(400 + Math.random() * 800);
+        try { await fn(); return true; } catch (e2) { writeError(e2); return false; }
+      }
+      writeError(e); return false;
+    }
+  }
+
+  function addDrink(pid, ml) {
+    const p = BY_ID[pid];
+    if (!p || !canWriteNow()) return;
+    if (!(ml >= 10 && ml <= 5000)) return;
+    ml = Math.round(ml);
+    const ts = Date.now();
+    let autoStarted = false;
+    if (S.startAt == null && S.configConfirmed && !S.configBusy) {
+      autoStarted = true;
+      S.configBusy = true;
+      safeWrite(() => S.db.doc('config/event').set({ startAt: ts })).finally(() => { S.configBusy = false; renderAll(); });
+    }
+    const ref = S.db.collection('drinks').doc();
+    const setP = safeWrite(() => ref.set({ p: pid, ml, ts }));
+    const el = doorRefs[pid] && doorRefs[pid].root;
+    if (el) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+    toast(p.name + ' +' + trimL(ml) + ' L' + (autoStarted ? ' · Uhr läuft!' : ''), {
+      action: { label: 'Rückgängig', fn: async () => { const ok = await setP; if (ok && await safeWrite(() => ref.delete())) toast('Rückgängig gemacht.'); } },
+    });
+  }
+
+  async function deleteDrink(id) {
+    S.pendingDelete = null;
+    const d = S.drinks.find(x => x.id === id);
+    renderAll();
+    if (!d || !canWriteNow()) return;
+    let ref;
+    try { ref = S.db.collection('drinks').doc(id); } catch { return; }
+    const ok = await safeWrite(() => ref.delete());
+    if (ok) {
+      const p = BY_ID[d.p];
+      toast(p.name + ': ' + sizeLine(d.ml) + ' gelöscht', {
+        action: { label: 'Rückgängig', fn: async () => { if (await safeWrite(() => ref.set({ p: d.p, ml: d.ml, ts: d.ts }))) toast('Wiederhergestellt.'); } },
+      });
+    }
+  }
+
+  async function setStart(ts) {
+    if (!canWriteNow() || S.configBusy) return false;
+    S.configBusy = true; renderAll();
+    const ok = await safeWrite(() => S.db.doc('config/event').set({ startAt: ts }));
+    S.configBusy = false; renderAll();
+    return ok;
+  }
+  async function resetStart() {
+    if (!canWriteNow() || S.configBusy) return;
+    S.configBusy = true; renderAll();
+    const ok = await safeWrite(() => S.db.doc('config/event').delete());
+    S.configBusy = false; renderAll();
+    if (ok) toast('Uhr zurückgesetzt.');
+  }
+  async function wipeAll() {
+    if (!S.isOwner || !canWriteNow()) return;
+    const ids = S.drinks.map(d => d.id);
+    S.wiping = true; renderAll();
+    const status = $('#wipeStatus');
+    let done = 0, failed = 0;
+    for (const id of ids) {
+      let ok = false;
+      for (let attempt = 0; attempt < 4 && !ok; attempt++) {
+        try { await S.db.collection('drinks').doc(id).delete(); ok = true; }
+        catch (e) {
+          const c = e && e.code;
+          if (c === 'unavailable' || c === 'resource_exhausted') await sleep(800 * (attempt + 1));
+          else break;
+        }
+      }
+      if (ok) done++; else failed++;
+      status.textContent = 'Lösche … ' + (done + failed) + ' / ' + ids.length;
+      await sleep(40);
+    }
+    S.wiping = false;
+    status.textContent = failed ? done + ' gelöscht, ' + failed + ' nicht. Nochmal versuchen.' : 'Alle ' + done + ' Einträge gelöscht.';
+    renderAll();
+  }
+
+  /* ---------- sheet ---------- */
+  let lastFocus = null;
+  function openSheet(pid) {
+    const p = BY_ID[pid]; if (!p) return;
+    S.openPerson = pid; S.pendingDelete = null;
+    lastFocus = document.activeElement;
+    const head = $('#sheetHead');
+    head.style.setProperty('--door', p.color);
+    $('#sheetArch').innerHTML = '<span class="fan" aria-hidden="true"></span>' + glassSVG('sheet');
+    $('#sheetArch').style.setProperty('--door', p.color);
+    $('#customAmount').value = ''; $('#customHint').textContent = ''; $('#customHint').className = 'hint';
+    $('#sheet').hidden = false;
+    document.documentElement.style.overflow = 'hidden';
+    renderAll();
+    $('#sheetTitle').focus({ preventScroll: true });
+  }
+  function closeSheet() {
+    if (!S.openPerson) return;
+    S.openPerson = null; S.pendingDelete = null;
+    $('#sheet').hidden = true;
+    document.documentElement.style.overflow = '';
+    if (lastFocus && document.contains(lastFocus)) { try { lastFocus.focus({ preventScroll: true }); } catch {} }
+    renderAll();
+  }
+  function parseAmount(raw) {
+    const s = String(raw || '').trim().replace(/\s/g, '').replace(/l$/i, '').replace(',', '.');
+    if (!s) return { err: 'Bitte eine Menge eingeben, zum Beispiel 0,4.' };
+    if (!/^\d*\.?\d+$/.test(s)) return { err: 'Nur Zahlen, zum Beispiel 0,4 für 0,4 Liter.' };
+    let v = parseFloat(s);
+    let ml = v > 20 ? v : v * 1000;
+    ml = Math.round(ml);
+    if (ml < 50) return { err: 'Zu wenig. Mindestens 0,05 L.' };
+    if (ml > 3000) return { err: 'Zu viel auf einmal. Höchstens 3 L pro Eintrag.' };
+    return { ml };
+  }
+
+  /* ---------- start hint ---------- */
+  function updateStartHint() {
+    const hint = $('#startHint');
+    const v = $('#startInput').value;
+    if (!v) { hint.textContent = ''; hint.className = 'hint'; return; }
+    const ts = new Date(v).getTime();
+    if (!isFinite(ts)) { hint.textContent = 'Ungültige Zeit.'; hint.className = 'hint err'; return; }
+    const out = S.drinks.filter(d => d.ts < ts - GRACE || d.ts > ts + DURATION + GRACE).length;
+    hint.className = 'hint';
+    hint.textContent = 'Ende wäre ' + dayTime(ts + DURATION) + '. ' +
+      (out ? out + (out === 1 ? ' Getränk läge' : ' Getränke lägen') + ' außerhalb der 24 Stunden und zählten nicht.' : 'Alle bisherigen Getränke liegen im Zeitfenster.');
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener('click', e => {
+    const t = e.target.closest('button, [data-close]');
+    if (!t) return;
+    if (t.hasAttribute('data-close')) { closeSheet(); return; }
+    if (t.dataset.open) {
+      if (Date.now() < S.shieldUntil) return;
+      openSheet(t.dataset.open); return;
+    }
+    if (t.dataset.quick) {
+      if (Date.now() < S.shieldUntil) return;
+      const pid = t.dataset.quick;
+      if (Date.now() - (S.lastQuick[pid] || 0) < 1500) return;
+      S.lastQuick[pid] = Date.now();
+      addDrink(pid, Number(t.dataset.ml) || PINT); return;
+    }
+    if (t.dataset.ml && S.openPerson) {
+      const pid = S.openPerson;
+      addDrink(pid, Number(t.dataset.ml));
+      S.shieldUntil = Date.now() + 500;
+      closeSheet(); return;
+    }
+    if (t.dataset.del) { S.pendingDelete = t.dataset.del; renderAll(); return; }
+    if (t.dataset.delYes) { deleteDrink(t.dataset.delYes); return; }
+    if (t.dataset.delNo) { S.pendingDelete = null; renderAll(); return; }
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.openPerson) closeSheet(); });
+  $('#toastBtn').addEventListener('click', () => {
+    const a = toastAction; toastAction = null; $('#toast').hidden = true;
+    if (a) a.fn();
+  });
+  $('#customForm').addEventListener('submit', e => {
+    e.preventDefault();
+    if (!S.openPerson || !canWriteNow()) return;
+    const r = parseAmount($('#customAmount').value);
+    const hint = $('#customHint');
+    if (r.err) { hint.textContent = r.err; hint.className = 'hint err'; return; }
+    addDrink(S.openPerson, r.ml);
+    S.shieldUntil = Date.now() + 500;
+    closeSheet();
+  });
+  $('#customAmount').addEventListener('input', e => {
+    const hint = $('#customHint');
+    if (!e.target.value.trim()) { hint.textContent = ''; hint.className = 'hint'; return; }
+    const r = parseAmount(e.target.value);
+    if (r.err) { hint.textContent = r.err; hint.className = 'hint err'; }
+    else { hint.textContent = '= ' + trimL(r.ml) + ' L'; hint.className = 'hint'; }
+  });
+  $('#feedMore').addEventListener('click', () => { S.feedLimit += 40; renderAll(); });
+  $('#startNow').addEventListener('click', async () => { if (await setStart(Date.now())) toast('Uhr läuft. Sláinte!'); });
+  $('#startNow2').addEventListener('click', async () => { S.startDirty = false; if (await setStart(Date.now())) toast('Uhr läuft. Sláinte!'); });
+  $('#startInput').addEventListener('input', () => { S.startDirty = true; updateStartHint(); });
+  $('#startSave').addEventListener('click', async () => {
+    const v = $('#startInput').value;
+    const ts = v ? new Date(v).getTime() : NaN;
+    if (!isFinite(ts)) { const h = $('#startHint'); h.textContent = 'Bitte Datum und Uhrzeit wählen.'; h.className = 'hint err'; return; }
+    if (await setStart(ts)) { S.startDirty = false; $('#startHint').textContent = ''; toast('Startzeit gespeichert: ' + dayTime(ts)); renderAll(); }
+  });
+  $('#startReset').addEventListener('click', () => { $('#startResetConfirm').hidden = false; });
+  $('#startResetNo').addEventListener('click', () => { $('#startResetConfirm').hidden = true; });
+  $('#startResetYes').addEventListener('click', () => { $('#startResetConfirm').hidden = true; S.startDirty = false; resetStart(); });
+  $('#wipeBtn').addEventListener('click', () => {
+    $('#wipeQuestion').textContent = 'Wirklich alle ' + S.drinks.length + ' Einträge für alle löschen? Das lässt sich nicht rückgängig machen.';
+    $('#wipeConfirm').hidden = false;
+  });
+  $('#wipeNo').addEventListener('click', () => { $('#wipeConfirm').hidden = true; });
+  $('#wipeYes').addEventListener('click', () => { $('#wipeConfirm').hidden = true; wipeAll(); });
+
+  const chartEl = $('#chart');
+  chartEl.addEventListener('pointermove', chartHover);
+  chartEl.addEventListener('pointerdown', chartHover);
+  chartEl.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hideHover(); });
+  document.addEventListener('pointerdown', e => { if (!chartEl.contains(e.target)) hideHover(); });
+  let lastW = 0, rafId = 0;
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(() => {
+      const w = Math.round(chartEl.clientWidth);
+      if (Math.abs(w - lastW) < 2) return;
+      lastW = w;
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => { if (S.model) renderChart(compute(Date.now())); });
+    }).observe(chartEl);
+  }
+
+  /* ---------- data ---------- */
+  function onData() {
+    renderAll();
+    if (!S.drinksConfirmed || !S.configConfirmed) return;
+    const M = S.model;
+    const totals = {};
+    for (const p of PEOPLE) totals[p.id] = M.per[p.id].total;
+    if (S.prevTotals) {
+      for (const p of PEOPLE) if (S.prevTotals[p.id] < GOAL_ML && totals[p.id] >= GOAL_ML) { celebrate(p); break; }
+    }
+    S.prevTotals = totals;
+  }
+  function validDrink(v) {
+    return v && typeof v.p === 'string' && BY_ID[v.p] && typeof v.ml === 'number' && isFinite(v.ml) && v.ml >= 10 && v.ml <= 5000 && typeof v.ts === 'number' && isFinite(v.ts) && v.ts > 1e12 && v.ts < 1e13;
+  }
+
+  let drinkRetries = 0, configRetries = 0;
+  function subscribeDrinks() {
+    S.db.collection('drinks').orderBy('ts', 'desc').limit(1000).onSnapshot(snap => {
+      const arr = [];
+      for (const doc of snap.docs) {
+        let v; try { v = doc.data(); } catch { continue; }
+        if (!validDrink(v)) continue;
+        arr.push({ id: doc.id, p: v.p, ml: Math.round(v.ml), ts: v.ts });
+      }
+      arr.sort((a, b) => a.ts - b.ts || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+      S.drinks = arr;
+      S.drinksLoaded = true;
+      S.drinksCache = !!snap.metadata.fromCache;
+      if (!snap.metadata.fromCache) { S.drinksConfirmed = true; clearStaleIfReady(); }
+      if (S.pendingDelete && !arr.some(d => d.id === S.pendingDelete)) S.pendingDelete = null;
+      onData();
+    }, err => {
+      const c = err && err.code;
+      if (c === 'unavailable' && drinkRetries < 30) { drinkRetries++; setTimeout(subscribeDrinks, 3000); S.stale = true; renderAll(); return; }
+      if (c === 'revoked') S.revoked = true; else S.stale = true;
+      renderAll();
+    });
+  }
+  function subscribeConfig() {
+    S.db.doc('config/event').onSnapshot(snap => {
+      let start = null;
+      if (snap.exists) { const v = snap.data(); if (v && typeof v.startAt === 'number' && isFinite(v.startAt) && v.startAt > 1e12 && v.startAt < 1e13) start = v.startAt; }
+      S.startAt = start;
+      S.configLoaded = true;
+      S.configCache = !!snap.metadata.fromCache;
+      if (!snap.metadata.fromCache) { S.configConfirmed = true; clearStaleIfReady(); }
+      onData();
+    }, err => {
+      const c = err && err.code;
+      if (c === 'unavailable' && configRetries < 30) { configRetries++; setTimeout(subscribeConfig, 3000); S.stale = true; renderAll(); return; }
+      if (c === 'revoked') S.revoked = true; else S.stale = true;
+      renderAll();
+    });
+  }
+  let staleTimer = null;
+  function clearStaleIfReady() {
+    if (S.drinksConfirmed && S.configConfirmed) { S.stale = false; clearTimeout(staleTimer); }
+  }
+
+  async function boot() {
+    buildDoors();
+    renderAll();
+    setInterval(() => { renderClock(Date.now()); }, 1000);
+    setInterval(() => { renderAll(); }, 20000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) renderAll(); });
+
+    const c = window.claude;
+    if (!c || typeof c.use !== 'function') { S.noDb = true; renderAll(); return; }
+    let db = null;
+    try { db = await c.use('db'); } catch { db = null; }
+    if (!db) { S.noDb = true; renderAll(); return; }
+    S.db = db;
+    staleTimer = setTimeout(() => { if (!(S.drinksConfirmed && S.configConfirmed)) { S.stale = true; renderAll(); } }, 10000);
+    subscribeDrinks();
+    subscribeConfig();
+    renderAll();
+    try {
+      const user = await c.use('user');
+      if (user) {
+        const [w, o] = await Promise.all([
+          user.can('data.write').catch(() => null),
+          user.isOwner().catch(() => false),
+        ]);
+        if (w === false) S.canWrite = false;
+        else if (w === true) S.canWrite = true;
+        S.isOwner = !!o;
+        renderAll();
+      }
+    } catch {}
+  }
+  boot();
+})();
+</script>

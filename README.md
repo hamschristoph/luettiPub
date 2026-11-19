@@ -1,1 +1,25 @@
-# luettiPub
+# Dublin im Hundi
+
+Live-Tracker für das Ziel **10 Liter Bier in 24 Stunden** für Tim, Lütti, Jan, Jannik, Christoph, Robin und Carsten.
+
+**App:** https://claude.ai/artifact/MbekUuWpJCdUTyhoQjaYtv
+
+Die App läuft als Claude-Artefakt mit gemeinsamem Live-Speicher. Alle, die eingeladen sind, sehen jeden Eintrag sofort.
+
+## Bedienung
+
+- **Tür antippen:** Getränk für diese Person eintragen (Pint 0,568 · Halbe 0,5 · Dose 0,44 · Flasche 0,33 · ½ Pint 0,284 · Maß 1,0 oder eigene Menge).
+- **„+“ rechts an der Tür:** wiederholt das letzte Getränk dieser Person mit einem Tipp.
+- **Rückgängig:** nach jedem Eintrag ein paar Sekunden lang im Hinweis unten.
+- **Verlauf:** falsche Einträge mit × löschen (mit Rückfrage, ebenfalls rückgängig machbar).
+- **Uhr:** startet automatisch mit dem ersten Getränk. Unter „Uhr & Regeln“ lässt sich die Startzeit korrigieren.
+
+## Regeln
+
+- Es zählen nur Getränke innerhalb von 24 Stunden ab Start (2 Minuten Kulanz für Handy-Uhren).
+- Status pro Person: *Im Soll*, *hinter Soll*, *Geschafft*, dazu das nötige Tempo („1 Pint alle … min“).
+
+## Dateien
+
+- `dublin-im-hundi.html` – Quelltext der App (so wie er als Artefakt veröffentlicht ist).
+- `index.html` – leitet auf die App weiter.
