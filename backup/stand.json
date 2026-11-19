@@ -1,7 +1,8 @@
 {
- "savedAt": "2026-11-19",
+ "savedAt": "2026-11-19 (2. Sicherung)",
  "config": {
-  "startAt": 1795066860000
+  "startAt": 1795066860000,
+  "endAt": 1795140000000
  },
  "drinks": [
   {
@@ -125,12 +126,6 @@
    "ts": 1795077774838
   },
   {
-   "id": "n3i1edf50ytm9wifx6ce",
-   "ml": 330,
-   "p": "luetti",
-   "ts": 1795077776778
-  },
-  {
    "id": "fvzojrrvjlpdjwjs22q2",
    "ml": 500,
    "p": "tim",
@@ -225,6 +220,168 @@
    "ml": 568,
    "p": "luetti",
    "ts": 1795097327742
+  },
+  {
+   "id": "pmwuz0vbuziduyj9qplv",
+   "ml": 568,
+   "p": "jan",
+   "ts": 1795099843890
+  },
+  {
+   "id": "w18my25o9h02wxj3vb9o",
+   "ml": 568,
+   "p": "robin",
+   "ts": 1795099845547
+  },
+  {
+   "id": "tgi56d549g3jcb953abe",
+   "ml": 568,
+   "p": "jannik",
+   "ts": 1795099847777
+  },
+  {
+   "id": "z2do928t6u02jr43ng4a",
+   "ml": 568,
+   "p": "christoph",
+   "ts": 1795099849341
+  },
+  {
+   "id": "xabp9f2ypdxy890vs5ga",
+   "ml": 568,
+   "p": "carsten",
+   "ts": 1795099851559
+  },
+  {
+   "id": "nuq4mbb1ta1xnn1kgssi",
+   "ml": 568,
+   "p": "tim",
+   "ts": 1795099852935
+  },
+  {
+   "id": "67limimiz0jwvr481cre",
+   "ml": 568,
+   "p": "luetti",
+   "ts": 1795099854049
+  },
+  {
+   "id": "j6zppn0ob6tufznv3l0s",
+   "ml": 568,
+   "p": "jan",
+   "ts": 1795103312786
+  },
+  {
+   "id": "af0w17a6q8y41xp5p6ty",
+   "ml": 568,
+   "p": "robin",
+   "ts": 1795103314638
+  },
+  {
+   "id": "e37qglplew2krv7x85x2",
+   "ml": 568,
+   "p": "jannik",
+   "ts": 1795103316134
+  },
+  {
+   "id": "rns3ihntc648mrjtrw3w",
+   "ml": 568,
+   "p": "christoph",
+   "ts": 1795103317636
+  },
+  {
+   "id": "tphuz7sniwp91rdyrizh",
+   "ml": 568,
+   "p": "carsten",
+   "ts": 1795103319661
+  },
+  {
+   "id": "v5x68ubnnzhgwgr221ar",
+   "ml": 568,
+   "p": "tim",
+   "ts": 1795103321306
+  },
+  {
+   "id": "9dpod7sxu2b6hxtpcs8d",
+   "ml": 568,
+   "p": "luetti",
+   "ts": 1795103322798
+  },
+  {
+   "id": "kd8o08ez0qv27d7rv3ca",
+   "ml": 568,
+   "p": "jan",
+   "ts": 1795104825650
+  },
+  {
+   "id": "chr751r239r5aon8xivl",
+   "ml": 568,
+   "p": "robin",
+   "ts": 1795104826839
+  },
+  {
+   "id": "fm6iqz37tsfrs8aif383",
+   "ml": 568,
+   "p": "jannik",
+   "ts": 1795104828247
+  },
+  {
+   "id": "9q194cdfnbz8c1g1ogzc",
+   "ml": 568,
+   "p": "christoph",
+   "ts": 1795104829629
+  },
+  {
+   "id": "oazen8f23udrse6ll2io",
+   "ml": 568,
+   "p": "carsten",
+   "ts": 1795104830923
+  },
+  {
+   "id": "t0m14tf71koztv4tenm7",
+   "ml": 568,
+   "p": "tim",
+   "ts": 1795104832201
+  },
+  {
+   "id": "a4py0wqv3jvr9u3eec47",
+   "ml": 568,
+   "p": "luetti",
+   "ts": 1795104833323
+  },
+  {
+   "id": "g1b97dosy58cc5b7z81q",
+   "ml": 568,
+   "p": "jan",
+   "ts": 1795106766461
+  },
+  {
+   "id": "hwjkb8r5gbd0cvk4pz84",
+   "ml": 568,
+   "p": "robin",
+   "ts": 1795106768937
+  },
+  {
+   "id": "pn9tpym1ypfd37h5iskb",
+   "ml": 568,
+   "p": "jannik",
+   "ts": 1795106771450
+  },
+  {
+   "id": "9ap99a0tt9xgs3nhrirk",
+   "ml": 568,
+   "p": "christoph",
+   "ts": 1795106773875
+  },
+  {
+   "id": "w2j0nkof9v9foek3i7nf",
+   "ml": 568,
+   "p": "carsten",
+   "ts": 1795106774950
+  },
+  {
+   "id": "a1blwfi2t30gzusx6siz",
+   "ml": 568,
+   "p": "luetti",
+   "ts": 1795106777955
   }
  ]
 }

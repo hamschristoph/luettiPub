@@ -8,6 +8,8 @@ Die App läuft als Claude-Artefakt mit gemeinsamem Live-Speicher. Alle, die eing
 
 ## Bedienung
 
+- **Gesamtstand Do–So:** Tabelle mit allen Getränken vom 19. bis 22. November pro Person und Tag (ein Tag geht bis 6 Uhr früh), unabhängig von der 24-h-Runde.
+- **Neue Runde:** Wenn eine Runde vorbei ist, startet „Neue Runde starten“ (zweimal tippen) die nächste. Alte Einträge bleiben erhalten.
 - **Rangliste:** Die Türen sind nach Litern sortiert, wer am meisten hat, steht oben.
 - **Tür antippen:** Getränk für diese Person eintragen (Pint 0,568 · Halbe 0,5 · Dose 0,44 · Flasche 0,33 · ½ Pint 0,284 · Maß 1,0 oder eigene Menge).
 - **„+“ rechts an der Tür:** wiederholt das letzte Getränk dieser Person mit einem Tipp.
@@ -24,4 +26,4 @@ Die App läuft als Claude-Artefakt mit gemeinsamem Live-Speicher. Alle, die eing
 
 - `dublin-im-hundi.html` – Quelltext der App (so wie er als Artefakt veröffentlicht ist).
 - `index.html` – leitet auf die App weiter.
-- `backup/stand.json` – Sicherung des Stands vom 19.11.2026 (37 Einträge + Startzeit).
+- `backup/stand.json` – Sicherung des Stands vom 19.11.2026 (63 Einträge, Start- und Endzeit).
